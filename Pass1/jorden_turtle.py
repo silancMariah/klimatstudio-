@@ -26,10 +26,12 @@ update_color(data.temperatur)
 print(f"Temperatur: {data.temperatur}°C, CO₂: {data.co2}")
 
 def spin():
-    earth.right(5)
-    screen.ontimer(spin, 100)
-
+    earth.right(90)
+    spin()
+    
 spin()
 
+
 turtle.done()
+
 

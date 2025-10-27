@@ -1,0 +1,2265 @@
+<!doctype html>
+<html lang="sv">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Python Block Builder</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+        body {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 20px;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a3a 50%, #2d1b69 100%);
+            min-height: 100%;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .game-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            background: linear-gradient(45deg, #ff6b35, #f7931e);
+            color: white;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 2px 2px 4px rgba(0,0,0,0.3), 0 0 10px rgba(255,255,255,0.2); }
+            to { text-shadow: 2px 2px 4px rgba(0,0,0,0.3), 0 0 20px rgba(255,255,255,0.4); }
+        }
+
+        .welcome-text {
+            margin: 15px 0 0 0;
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .timeline-container {
+            padding: 30px;
+            background: linear-gradient(90deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+
+        .timeline {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #ddd 0%, #ddd 100%);
+            z-index: 1;
+            border-radius: 2px;
+        }
+
+        .timeline-progress {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #ff6b35, #f7931e);
+            z-index: 2;
+            border-radius: 2px;
+            transition: width 0.8s ease;
+            transform: translateY(-50%);
+        }
+
+        .timeline-step {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #666;
+            position: relative;
+            z-index: 3;
+            transition: all 0.5s ease;
+            cursor: pointer;
+        }
+
+        .timeline-step.completed {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+        }
+
+        .timeline-step.current {
+            background: linear-gradient(45deg, #ff6b35, #f7931e);
+            color: white;
+            transform: scale(1.2);
+            box-shadow: 0 5px 20px rgba(255, 107, 53, 0.5);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1.2); }
+            50% { transform: scale(1.3); }
+        }
+
+        .step-label {
+            position: absolute;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.9em;
+            font-weight: bold;
+            color: #666;
+            white-space: nowrap;
+        }
+
+        .step-container {
+            display: none;
+            animation: slideIn 0.6s ease-out;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .step-container.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .step-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .step-title {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #ff6b35, #f7931e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .step-description {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .planet-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 30px 0;
+            height: 200px;
+        }
+
+        .planet {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #4a90e2, #357abd);
+            position: relative;
+            transition: all 0.8s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .planet.glowing {
+            animation: planetGlow 2s ease-in-out infinite alternate;
+            box-shadow: 0 0 50px rgba(74, 144, 226, 0.6);
+        }
+
+        .planet.hot {
+            background: linear-gradient(45deg, #ff4757, #ff3742);
+            box-shadow: 0 0 50px rgba(255, 71, 87, 0.6);
+        }
+
+        .planet.cold {
+            background: linear-gradient(45deg, #74b9ff, #0984e3);
+            box-shadow: 0 0 50px rgba(116, 185, 255, 0.6);
+        }
+
+        .planet.rotating {
+            animation: rotate 4s linear infinite;
+        }
+
+        @keyframes planetGlow {
+            from { box-shadow: 0 0 30px rgba(74, 144, 226, 0.4); }
+            to { box-shadow: 0 0 60px rgba(74, 144, 226, 0.8); }
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .planet-stats {
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .planet:hover .planet-stats {
+            opacity: 1;
+        }
+
+        .code-editor {
+            background: #2d3748;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px 0;
+            font-family: 'Courier New', monospace;
+            color: #e2e8f0;
+            position: relative;
+            border: 3px solid transparent;
+            background-clip: padding-box;
+        }
+
+        .code-editor.highlight {
+            border-color: #ff6b35;
+            box-shadow: 0 0 20px rgba(255, 107, 53, 0.3);
+        }
+
+        .code-line {
+            margin: 10px 0;
+            padding: 8px 15px;
+            border-radius: 8px;
+            transition: all 0.4s ease;
+            position: relative;
+        }
+
+        .code-line.typing {
+            background: rgba(255, 107, 53, 0.2);
+            border-left: 4px solid #ff6b35;
+            animation: typeGlow 1s ease-in-out infinite alternate;
+        }
+
+        @keyframes typeGlow {
+            from { background: rgba(255, 107, 53, 0.2); }
+            to { background: rgba(255, 107, 53, 0.4); }
+        }
+
+        .code-line.completed {
+            background: rgba(40, 167, 69, 0.2);
+            border-left: 4px solid #28a745;
+        }
+
+        /* VS Code Python syntax highlighting */
+        .keyword { color: #569cd6; font-weight: bold; }
+        .string { color: #ce9178; }
+        .comment { color: #6a9955; font-style: italic; }
+        .function { color: #dcdcaa; font-weight: bold; }
+        .variable { color: #9cdcfe; }
+        .self { color: #569cd6; font-weight: bold; }
+        .number { color: #b5cea8; }
+        .class-name { color: #4ec9b0; font-weight: bold; }
+
+        .input-area {
+            margin: 20px 0;
+        }
+
+        .code-input {
+            width: 100%;
+            padding: 15px;
+            border: 3px solid #ddd;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+
+        .code-input:focus {
+            outline: none;
+            border-color: #ff6b35;
+            background: white;
+            box-shadow: 0 0 15px rgba(255, 107, 53, 0.2);
+        }
+
+        .drag-blocks {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0;
+            justify-content: center;
+        }
+
+        .code-block {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: grab;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            user-select: none;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .code-block:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .code-block:active {
+            cursor: grabbing;
+            transform: scale(0.95);
+        }
+
+        .code-block.used {
+            background: #28a745;
+            cursor: default;
+        }
+
+        .property-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .property-control {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .property-control:hover {
+            border-color: #ff6b35;
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.1);
+        }
+
+        .property-label {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #2d3748;
+        }
+
+        .property-slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: #ddd;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .property-slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ff6b35;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+
+        .property-value {
+            text-align: center;
+            font-weight: bold;
+            color: #ff6b35;
+            margin-top: 5px;
+        }
+
+        .button-group {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #ff6b35, #f7931e);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(255, 107, 53, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(255, 107, 53, 0.4);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #6c757d, #5a6268);
+            box-shadow: 0 5px 20px rgba(108, 117, 125, 0.3);
+        }
+
+        .btn-run {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            box-shadow: 0 5px 20px rgba(40, 167, 69, 0.3);
+            font-size: 20px;
+            padding: 18px 35px;
+        }
+
+        .feedback-message {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin: 20px 0;
+            font-size: 1.2em;
+            font-weight: bold;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+
+        .feedback-message.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .final-animation {
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 20px;
+            margin: 30px 0;
+        }
+
+        .final-animation h2 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            animation: celebration 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes celebration {
+            from { transform: scale(1); }
+            to { transform: scale(1.05); }
+        }
+
+        .code-showcase {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 25px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            margin: 20px 0;
+            max-height: 400px;
+            overflow-y: auto;
+            animation: codeReveal 3s ease-out;
+            border: 1px solid #3c3c3c;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        @keyframes codeReveal {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .sparkles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .sparkle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #ffd700;
+            border-radius: 50%;
+            animation: sparkle 2s ease-in-out infinite;
+        }
+
+        @keyframes sparkle {
+            0%, 100% { opacity: 0; transform: scale(0); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+
+        /* Step 4 Function Builder Styles */
+        .function-builder {
+            margin: 30px 0;
+        }
+
+        .build-step {
+            display: none;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            border: 2px solid #e9ecef;
+        }
+
+        .build-step.active {
+            display: block;
+            border-color: #ff6b35;
+            box-shadow: 0 5px 20px rgba(255, 107, 53, 0.1);
+        }
+
+        .build-step h3 {
+            color: #ff6b35;
+            margin-bottom: 15px;
+        }
+
+        .condition-builder, .action-builder {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .condition-part, .action-part {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+        }
+
+        .condition-part label, .action-part label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #2d3748;
+        }
+
+        .block-choices {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .choice-block {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .choice-block:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .choice-block.selected {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            border-color: #fff;
+            transform: scale(1.05);
+        }
+
+        .condition-input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+        }
+
+        .condition-input:focus {
+            outline: none;
+            border-color: #ff6b35;
+        }
+
+        /* Step 6 Scratch-like Code Builder Styles */
+        .code-workspace {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 30px 0;
+        }
+
+        .code-builder-area {
+            background: #2d3748;
+            border-radius: 15px;
+            padding: 20px;
+            min-height: 500px;
+        }
+
+        .code-builder-area h3 {
+            color: #e2e8f0;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .code-drop-zone {
+            background: #4a5568;
+            border: 3px dashed #718096;
+            border-radius: 10px;
+            min-height: 400px;
+            padding: 20px;
+            position: relative;
+        }
+
+        .drop-hint {
+            color: #a0aec0;
+            text-align: center;
+            font-style: italic;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
+        .code-drop-zone.has-blocks .drop-hint {
+            display: none;
+        }
+
+        .block-palette {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .block-palette h3 {
+            color: #2d3748;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .block-category {
+            margin-bottom: 25px;
+        }
+
+        .block-category h4 {
+            color: #4a5568;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .code-blocks-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .scratch-block {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: grab;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            user-select: none;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            border: 3px solid transparent;
+            position: relative;
+        }
+
+        .scratch-block:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .scratch-block:active {
+            cursor: grabbing;
+            transform: scale(0.95);
+        }
+
+        .scratch-block.used {
+            background: #28a745;
+            cursor: default;
+            opacity: 0.6;
+        }
+
+        .scratch-block.structure-block {
+            background: linear-gradient(45deg, #ff6b35, #f7931e);
+        }
+
+        .scratch-block.property-block {
+            background: linear-gradient(45deg, #9f7aea, #805ad5);
+        }
+
+        .scratch-block.logic-block {
+            background: linear-gradient(45deg, #38b2ac, #319795);
+        }
+
+        .scratch-block.usage-block {
+            background: linear-gradient(45deg, #4299e1, #3182ce);
+        }
+
+        .dropped-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 8px 15px 8px 45px;
+            margin: 5px 0;
+            border-radius: 8px;
+            border-left: 4px solid #ff6b35;
+            font-family: 'Courier New', monospace;
+            position: relative;
+            animation: dropIn 0.3s ease-out;
+            transition: all 0.3s ease;
+        }
+
+        .dropped-block.correct-order {
+            border-left-color: #28a745;
+            background: linear-gradient(90deg, #2d3748 0%, rgba(40, 167, 69, 0.1) 100%);
+        }
+
+        .dropped-block.wrong-order {
+            border-left-color: #ffc107;
+            background: linear-gradient(90deg, #2d3748 0%, rgba(255, 193, 7, 0.1) 100%);
+        }
+
+        .block-number {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #ff6b35;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .dropped-block.correct-order .block-number {
+            background: #28a745;
+        }
+
+        .dropped-block.wrong-order .block-number {
+            background: #ffc107;
+        }
+
+        @keyframes dropIn {
+            from { opacity: 0; transform: translateX(-20px) scale(0.9); }
+            to { opacity: 1; transform: translateX(0) scale(1); }
+        }
+
+        @keyframes successPop {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(1) translateY(-30px); }
+        }
+
+        @keyframes hintBounce {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+        }
+
+        @keyframes hintGlow {
+            0%, 100% { 
+                box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+                transform: scale(1);
+            }
+            50% { 
+                box-shadow: 0 0 30px rgba(255, 193, 7, 0.8);
+                transform: scale(1.05);
+            }
+        }
+
+        @keyframes celebrationFloat {
+            0% {
+                opacity: 1;
+                transform: translateY(0) rotate(0deg);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-100px) rotate(360deg);
+            }
+        }
+
+        .progress-text {
+            font-weight: bold;
+            color: #2d3748;
+            transition: all 0.3s ease;
+        }
+
+        .property-inputs {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px 0;
+            border: 2px solid #e9ecef;
+        }
+
+        .property-inputs h3 {
+            color: #ff6b35;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group label {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #2d3748;
+        }
+
+        .input-group input {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #ff6b35;
+            box-shadow: 0 0 10px rgba(255, 107, 53, 0.2);
+        }
+
+        @keyframes epicFloat {
+            0% {
+                opacity: 1;
+                transform: translateY(0) rotate(0deg) scale(0.5);
+            }
+            50% {
+                opacity: 1;
+                transform: translateY(-50vh) rotate(180deg) scale(1.2);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-100vh) rotate(360deg) scale(0.8);
+            }
+        }
+
+        @keyframes soundPulse {
+            0% {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.2);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(1);
+            }
+        }
+
+        /* Enhanced hover effects for better interactivity */
+        .scratch-block:hover:not(.used) {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+        }
+
+        .code-drop-zone:hover {
+            border-color: #ff6b35 !important;
+            background-color: rgba(255, 107, 53, 0.05) !important;
+        }
+
+        /* Improved mobile responsiveness */
+        @media (max-width: 768px) {
+            .code-workspace {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .block-palette {
+                max-height: 400px;
+            }
+            
+            .scratch-block {
+                font-size: 0.9em;
+                padding: 10px 15px;
+            }
+        }
+
+        .dropped-block .remove-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #e53e3e;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .progress-indicator {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .progress-bar {
+            background: #e2e8f0;
+            height: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .progress-text {
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        @media (max-width: 768px) {
+            .timeline {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            
+            .timeline-step {
+                width: 45px;
+                height: 45px;
+                font-size: 1em;
+            }
+            
+            .property-controls {
+                grid-template-columns: 1fr;
+            }
+
+            .code-workspace {
+                grid-template-columns: 1fr;
+            }
+
+            .condition-builder, .action-builder {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body>
+  <div class="game-container">
+   <div class="header">
+    <h1 id="game-title">🐍 Python Block Builder</h1>
+    <p class="welcome-text" id="welcome-message">Bygg Python-kod genom att dra block i rätt ordning!</p>
+   </div>
+   <div class="timeline-container">
+    <div class="timeline">
+     <div class="timeline-progress" id="timeline-progress"></div>
+     <div class="timeline-step current" id="step-1-btn" onclick="goToStep(1)">
+      1 
+      <div class="step-label">
+       Klassstruktur
+      </div>
+     </div>
+     <div class="timeline-step" id="step-2-btn" onclick="goToStep(2)">
+      2 
+      <div class="step-label">
+       Egenskaper
+      </div>
+     </div>
+     <div class="timeline-step" id="step-3-btn" onclick="goToStep(3)">
+      3 
+      <div class="step-label">
+       Logik
+      </div>
+     </div>
+     <div class="timeline-step" id="step-4-btn" onclick="goToStep(4)">
+      4 
+      <div class="step-label">
+       Användning
+      </div>
+     </div>
+     <div class="timeline-step" id="step-5-btn" onclick="goToStep(5)">
+      5 
+      <div class="step-label">
+       Komplett kod
+      </div>
+     </div>
+    </div>
+   </div>
+   <div class="main-container"><!-- Nivå 1: Klassstruktur -->
+    <div class="step-container active" id="step-1">
+     <div class="step-header">
+      <div class="step-title">
+       🏗️ Nivå 1: Klassstruktur
+      </div>
+      <div class="step-description">
+       Bygg grundstrukturen för din Python-klass med rätt block i rätt ordning!
+      </div>
+     </div>
+     <div class="planet-container">
+      <div class="planet rotating" id="planet-1">
+       <div class="planet-stats" id="planet-1-stats">
+        🌍 Bygg klassstrukturen!
+       </div>
+      </div>
+     </div>
+     <div class="code-workspace">
+      <div class="code-builder-area">
+       <h3>🧩 Din klassstruktur:</h3>
+       <div class="code-drop-zone" id="code-drop-zone-1">
+        <div class="drop-hint">
+         Dra klassstruktur-block hit i rätt ordning!
+        </div>
+       </div>
+      </div>
+      <div class="block-palette">
+       <h3>📦 Klassstruktur-block:</h3>
+       <div class="code-blocks-grid">
+        <div class="scratch-block structure-block" data-code="class Jorden:" data-order="1" data-level="1">
+         class Jorden:
+        </div>
+        <div class="scratch-block structure-block" data-code="    def __init__(self):" data-order="2" data-level="1">
+         def __init__(self):
+        </div>
+        <div class="scratch-block structure-block" data-code="    def update(self):" data-order="3" data-level="1">
+         def update(self):
+        </div>
+       </div>
+      </div>
+     </div>
+     <div class="progress-indicator">
+      <div class="progress-bar">
+       <div class="progress-fill" id="progress-1"></div>
+      </div>
+      <div class="progress-text"><span id="blocks-placed-1">0</span> / <span id="total-blocks-1">3</span> block placerade
+      </div>
+     </div>
+     <div class="button-group"><button class="btn" id="next-btn-1" onclick="completeLevel(1)" disabled>➡️ Nästa nivå</button> <button class="btn btn-secondary" onclick="resetLevel(1)">🔄 Börja om</button>
+     </div>
+    </div><!-- Nivå 2: Egenskaper -->
+    <div class="step-container" id="step-2">
+     <div class="step-header">
+      <div class="step-title">
+       ⚙️ Nivå 2: Egenskaper
+      </div>
+      <div class="step-description">
+       Lägg till egenskaper (attribut) till din klass!
+      </div>
+     </div>
+     <div class="planet-container">
+      <div class="planet rotating" id="planet-2">
+       <div class="planet-stats" id="planet-2-stats">
+        🌍 Lägg till egenskaper!
+       </div>
+      </div>
+     </div>
+     <div class="property-inputs">
+      <h3>⚙️ Ställ in dina värden:</h3>
+      <div class="input-grid">
+       <div class="input-group"><label for="temp-input">🌡️ Temperatur:</label> <input type="number" id="temp-input" value="15" min="-50" max="100">
+       </div>
+       <div class="input-group"><label for="co2-input">💨 CO2 (ppm):</label> <input type="number" id="co2-input" value="380" min="100" max="1000">
+       </div>
+       <div class="input-group"><label for="form-input">🌍 Form:</label> <input type="text" id="form-input" value="rund" placeholder="t.ex. rund, oval">
+       </div>
+      </div><button class="btn" onclick="generatePropertyBlocks()">🔄 Skapa egenskaps-block</button>
+     </div>
+     <div class="code-workspace">
+      <div class="code-builder-area">
+       <h3>🧩 Dina egenskaper:</h3>
+       <div class="code-drop-zone" id="code-drop-zone-2">
+        <div class="drop-hint">
+         Klicka "Skapa egenskaps-block" först, sedan dra blocken hit!
+        </div>
+       </div>
+      </div>
+      <div class="block-palette">
+       <h3>📦 Egenskaps-block:</h3>
+       <div class="code-blocks-grid" id="property-blocks-container">
+        <p style="color: #666; font-style: italic;">Ställ in dina värden ovan och klicka "Skapa egenskaps-block"</p>
+       </div>
+      </div>
+     </div>
+     <div class="progress-indicator">
+      <div class="progress-bar">
+       <div class="progress-fill" id="progress-2"></div>
+      </div>
+      <div class="progress-text"><span id="blocks-placed-2">0</span> / <span id="total-blocks-2">3</span> block placerade
+      </div>
+     </div>
+     <div class="button-group"><button class="btn" id="next-btn-2" onclick="completeLevel(2)" disabled>➡️ Nästa nivå</button> <button class="btn btn-secondary" onclick="resetLevel(2)">🔄 Börja om</button>
+     </div>
+    </div><!-- Nivå 3: Logik -->
+    <div class="step-container" id="step-3">
+     <div class="step-header">
+      <div class="step-title">
+       🔧 Nivå 3: Logik
+      </div>
+      <div class="step-description">
+       Lägg till logik och villkor till din update-metod!
+      </div>
+     </div>
+     <div class="planet-container">
+      <div class="planet rotating" id="planet-3">
+       <div class="planet-stats" id="planet-3-stats">
+        🌍 Lägg till logik!
+       </div>
+      </div>
+     </div>
+     <div class="code-workspace">
+      <div class="code-builder-area">
+       <h3>🧩 Din logik:</h3>
+       <div class="code-drop-zone" id="code-drop-zone-3">
+        <div class="drop-hint">
+         Dra logik-block hit i rätt ordning!
+        </div>
+       </div>
+      </div>
+      <div class="block-palette">
+       <h3>📦 Logik-block:</h3>
+       <div class="code-blocks-grid">
+        <div class="scratch-block logic-block" data-code="        if self.co2 > 400:" data-order="1" data-level="3"><span class="keyword">if</span> self.co2 &gt; <span class="number">400</span>:
+        </div>
+        <div class="scratch-block logic-block" data-code="            self.temperatur += 2" data-order="2" data-level="3">
+         self.temperatur += <span class="number">2</span>
+        </div>
+        <div class="scratch-block logic-block" data-code="            print(\" temperaturen stiger 🌡️\) data-order="3" data-level="3"><span class="function">print</span>(<span class="string">"Temperaturen stiger 🌡️"</span>)
+        </div>
+        <div class="scratch-block logic-block" data-code="        else:" data-order="4" data-level="3"><span class="keyword">else</span>:
+        </div>
+        <div class="scratch-block logic-block" data-code="            self.temperatur -= 1" data-order="5" data-level="3">
+         self.temperatur -= <span class="number">1</span>
+        </div>
+        <div class="scratch-block logic-block" data-code="            print(\" temperaturen sjunker ❄️\) data-order="6" data-level="3"><span class="function">print</span>(<span class="string">"Temperaturen sjunker ❄️"</span>)
+        </div>
+       </div>
+      </div>
+     </div>
+     <div class="progress-indicator">
+      <div class="progress-bar">
+       <div class="progress-fill" id="progress-3"></div>
+      </div>
+      <div class="progress-text"><span id="blocks-placed-3">0</span> / <span id="total-blocks-3">6</span> block placerade
+      </div>
+     </div>
+     <div class="button-group"><button class="btn" id="next-btn-3" onclick="completeLevel(3)" disabled>➡️ Nästa nivå</button> <button class="btn btn-secondary" onclick="resetLevel(3)">🔄 Börja om</button>
+     </div>
+    </div><!-- Nivå 4: Användning -->
+    <div class="step-container" id="step-4">
+     <div class="step-header">
+      <div class="step-title">
+       🚀 Nivå 4: Användning
+      </div>
+      <div class="step-description">
+       Använd din klass genom att skapa objekt och anropa metoder!
+      </div>
+     </div>
+     <div class="planet-container">
+      <div class="planet rotating" id="planet-4">
+       <div class="planet-stats" id="planet-4-stats">
+        🌍 Använd din klass!
+       </div>
+      </div>
+     </div>
+     <div class="code-workspace">
+      <div class="code-builder-area">
+       <h3>🧩 Din användning:</h3>
+       <div class="code-drop-zone" id="code-drop-zone-4">
+        <div class="drop-hint">
+         Dra användnings-block hit i rätt ordning!
+        </div>
+       </div>
+      </div>
+      <div class="block-palette">
+       <h3>📦 Användnings-block:</h3>
+       <div class="code-blocks-grid">
+        <div class="scratch-block usage-block" data-code="jorden = Jorden()" data-order="1" data-level="4">
+         jorden = <span class="function">Jorden</span>()
+        </div>
+        <div class="scratch-block usage-block" data-code="jorden.co2 = 450" data-order="2" data-level="4">
+         jorden.co2 = <span class="number">450</span>
+        </div>
+        <div class="scratch-block usage-block" data-code="jorden.update()" data-order="3" data-level="4">
+         jorden.<span class="function">update</span>()
+        </div>
+       </div>
+      </div>
+     </div>
+     <div class="progress-indicator">
+      <div class="progress-bar">
+       <div class="progress-fill" id="progress-4"></div>
+      </div>
+      <div class="progress-text"><span id="blocks-placed-4">0</span> / <span id="total-blocks-4">3</span> block placerade
+      </div>
+     </div><!-- Komplett kod visas här när nivå 4 är klar -->
+     <div class="complete-code-section" id="complete-code-section" style="display: none;">
+      <div class="step-header">
+       <div class="step-title">
+        🎯 Din kompletta Python-kod!
+       </div>
+       <div class="step-description">
+        Här är den färdiga koden - precis som i VS Code!
+       </div>
+      </div>
+      <div class="code-showcase" id="complete-code-display"><!-- Complete code will be shown here -->
+      </div>
+     </div>
+     <div class="button-group"><button class="btn" id="next-btn-4" onclick="completeLevel(4)" disabled>➡️ Nästa nivå</button> <button class="btn btn-secondary" onclick="resetLevel(4)">🔄 Börja om</button>
+     </div>
+    </div><!-- Nivå 5: Komplett kod -->
+    <div class="step-container" id="step-5">
+     <div class="step-header">
+      <div class="step-title">
+       🎯 Nivå 5: Komplett kod
+      </div>
+      <div class="step-description">
+       Nu ska du sätta ihop ALLA block från alla nivåer i rätt ordning!
+      </div>
+     </div>
+     <div class="planet-container">
+      <div class="planet rotating glowing" id="planet-5" style="width: 180px; height: 180px;">
+       <div class="planet-stats" id="planet-5-stats">
+        🌍 Bygg den kompletta koden!
+       </div>
+      </div>
+     </div>
+     <div class="code-workspace">
+      <div class="code-builder-area">
+       <h3>🧩 Din kompletta Python-klass:</h3>
+       <div class="code-drop-zone" id="code-drop-zone-5">
+        <div class="drop-hint">
+         Dra ALLA block hit i rätt ordning för att bygga den kompletta koden!
+        </div>
+       </div>
+      </div>
+      <div class="block-palette">
+       <h3>📦 Alla block (blandade):</h3>
+       <div class="block-category">
+        <h4>🏗️ Klassstruktur</h4>
+        <div class="code-blocks-grid">
+         <div class="scratch-block structure-block" data-code="class Jorden:" data-order="1" data-level="5">
+          class Jorden:
+         </div>
+         <div class="scratch-block structure-block" data-code="    def __init__(self):" data-order="2" data-level="5">
+          def __init__(self):
+         </div>
+         <div class="scratch-block structure-block" data-code="    def update(self):" data-order="6" data-level="5">
+          def update(self):
+         </div>
+        </div>
+       </div>
+       <div class="block-category">
+        <h4>⚙️ Egenskaper</h4>
+        <div class="code-blocks-grid">
+         <div class="scratch-block property-block" data-code="        self.temperatur = 15" data-order="3" data-level="5">
+          self.temperatur = 15
+         </div>
+         <div class="scratch-block property-block" data-code="        self.co2 = 380" data-order="4" data-level="5">
+          self.co2 = 380
+         </div>
+         <div class="scratch-block property-block" data-code="        self.form = \" rund\ data-order="5" data-level="5">
+          self.form = "rund"
+         </div>
+        </div>
+       </div>
+       <div class="block-category">
+        <h4>🔧 Logik</h4>
+        <div class="code-blocks-grid">
+         <div class="scratch-block logic-block" data-code="        if self.co2 > 400:" data-order="7" data-level="5">
+          if self.co2 &gt; 400:
+         </div>
+         <div class="scratch-block logic-block" data-code="            self.temperatur += 2" data-order="8" data-level="5">
+          self.temperatur += 2
+         </div>
+         <div class="scratch-block logic-block" data-code="            print(\" temperaturen stiger 🌡️\) data-order="9" data-level="5">
+          print("Temperaturen stiger 🌡️")
+         </div>
+         <div class="scratch-block logic-block" data-code="        else:" data-order="10" data-level="5">
+          else:
+         </div>
+         <div class="scratch-block logic-block" data-code="            self.temperatur -= 1" data-order="11" data-level="5">
+          self.temperatur -= 1
+         </div>
+         <div class="scratch-block logic-block" data-code="            print(\" temperaturen sjunker ❄️\) data-order="12" data-level="5">
+          print("Temperaturen sjunker ❄️")
+         </div>
+        </div>
+       </div>
+       <div class="block-category">
+        <h4>🚀 Användning</h4>
+        <div class="code-blocks-grid">
+         <div class="scratch-block usage-block" data-code="jorden = Jorden()" data-order="13" data-level="5">
+          jorden = Jorden()
+         </div>
+         <div class="scratch-block usage-block" data-code="jorden.co2 = 450" data-order="14" data-level="5">
+          jorden.co2 = 450
+         </div>
+         <div class="scratch-block usage-block" data-code="jorden.update()" data-order="15" data-level="5">
+          jorden.update()
+         </div>
+        </div>
+       </div>
+      </div>
+     </div>
+     <div class="progress-indicator">
+      <div class="progress-bar">
+       <div class="progress-fill" id="progress-5"></div>
+      </div>
+      <div class="progress-text"><span id="blocks-placed-5">0</span> / <span id="total-blocks-5">15</span> block placerade
+      </div>
+     </div>
+     <div class="button-group"><button class="btn btn-run" id="finish-btn-5" onclick="showGameCompletion()" disabled>🎊 Slutför spelet!</button> <button class="btn btn-secondary" onclick="resetLevel(5)">🔄 Börja om</button>
+     </div>
+    </div>
+   </div>
+  </div>
+  <script>
+        let gameData = {
+            temperature: 15,
+            co2: 380,
+            age: 4500000000,
+            solarEnergy: 100
+        };
+
+        const defaultConfig = {
+            game_title: "🐍 Python Block Builder",
+            welcome_message: "Bygg Python-kod genom att dra block i rätt ordning!",
+            completion_message: "🎉 Fantastiskt! Du har byggt en komplett Python-klass med block!"
+        };
+
+        // Element SDK implementation
+        const capabilities = {
+            recolorables: [
+                {
+                    get: () => window.elementSdk?.config?.primary_color || "#ff6b35",
+                    set: (value) => {
+                        if (window.elementSdk) {
+                            window.elementSdk.setConfig({ primary_color: value });
+                        }
+                    }
+                },
+                {
+                    get: () => window.elementSdk?.config?.background_color || "#0f0f23",
+                    set: (value) => {
+                        if (window.elementSdk) {
+                            window.elementSdk.setConfig({ background_color: value });
+                        }
+                    }
+                }
+            ],
+            borderables: [],
+            fontEditable: {
+                get: () => window.elementSdk?.config?.font_family || "Comic Sans MS",
+                set: (value) => {
+                    if (window.elementSdk) {
+                        window.elementSdk.setConfig({ font_family: value });
+                    }
+                }
+            },
+            fontSizeable: {
+                get: () => window.elementSdk?.config?.font_size || 16,
+                set: (value) => {
+                    if (window.elementSdk) {
+                        window.elementSdk.setConfig({ font_size: value });
+                    }
+                }
+            }
+        };
+
+        async function onConfigChange(config) {
+            const primaryColor = config.primary_color || "#ff6b35";
+            const backgroundColor = config.background_color || "#0f0f23";
+            const fontFamily = config.font_family || "Comic Sans MS";
+            const fontSize = config.font_size || 16;
+
+            // Update colors
+            document.body.style.background = `linear-gradient(135deg, ${backgroundColor} 0%, #1a1a3a 50%, #2d1b69 100%)`;
+            
+            const buttons = document.querySelectorAll('.btn:not(.btn-secondary):not(.btn-run)');
+            buttons.forEach(btn => {
+                btn.style.background = `linear-gradient(45deg, ${primaryColor}, ${primaryColor}dd)`;
+            });
+
+            const header = document.querySelector('.header');
+            if (header) {
+                header.style.background = `linear-gradient(45deg, ${primaryColor}, ${primaryColor}dd)`;
+            }
+
+            // Update font
+            document.body.style.fontFamily = `${fontFamily}, cursive, sans-serif`;
+            document.body.style.fontSize = `${fontSize}px`;
+
+            // Update text content
+            const gameTitle = document.getElementById('game-title');
+            if (gameTitle) {
+                gameTitle.textContent = config.game_title || defaultConfig.game_title;
+            }
+
+            const welcomeMessage = document.getElementById('welcome-message');
+            if (welcomeMessage) {
+                welcomeMessage.textContent = config.welcome_message || defaultConfig.welcome_message;
+            }
+
+            const completionMessage = document.getElementById('completion-message');
+            if (completionMessage) {
+                completionMessage.textContent = config.completion_message || defaultConfig.completion_message;
+            }
+        }
+
+        function mapToEditPanelValues(config) {
+            return new Map([
+                ["game_title", config.game_title || defaultConfig.game_title],
+                ["welcome_message", config.welcome_message || defaultConfig.welcome_message],
+                ["completion_message", config.completion_message || defaultConfig.completion_message]
+            ]);
+        }
+
+        // Initialize Element SDK
+        if (window.elementSdk) {
+            window.elementSdk.init({
+                defaultConfig: defaultConfig,
+                onConfigChange: onConfigChange,
+                mapToCapabilities: () => capabilities,
+                mapToEditPanelValues: mapToEditPanelValues
+            });
+        }
+
+        function updatePlanetAppearance(planetId = 'planet') {
+            const planet = document.getElementById(planetId);
+            if (!planet) return;
+
+            planet.classList.remove('hot', 'cold');
+            
+            if (gameData.temperature > 25) {
+                planet.classList.add('hot');
+            } else if (gameData.temperature < 5) {
+                planet.classList.add('cold');
+            }
+
+            // Update planet stats
+            const stats = document.getElementById(planetId + '-stats') || planet.querySelector('.planet-stats');
+            if (stats) {
+                stats.textContent = `🌡️ ${gameData.temperature}°C | 💨 ${gameData.co2} ppm CO₂`;
+            }
+        }
+
+        function showFeedback() {
+            const feedback = document.getElementById('feedback');
+            if (feedback) {
+                feedback.classList.add('show');
+                setTimeout(() => {
+                    feedback.classList.remove('show');
+                }, 3000);
+            }
+        }
+
+        // Level-based game system
+        let gameState = {
+            currentLevel: 1,
+            completedLevels: [],
+            levelData: {
+                1: { droppedBlocks: [], totalBlocks: 3, correctOrder: [1, 2, 3] },
+                2: { droppedBlocks: [], totalBlocks: 3, correctOrder: [1, 2, 3] },
+                3: { droppedBlocks: [], totalBlocks: 6, correctOrder: [1, 2, 3, 4, 5, 6] },
+                4: { droppedBlocks: [], totalBlocks: 3, correctOrder: [1, 2, 3] },
+                5: { droppedBlocks: [], totalBlocks: 15, correctOrder: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15] }
+            },
+            allBlocks: []
+        };
+
+        function initGame() {
+            setupAllLevels();
+            goToStep(1);
+        }
+
+        function setupAllLevels() {
+            // Setup each level
+            for (let level = 1; level <= 5; level++) {
+                setupLevel(level);
+            }
+            
+            // Randomize blocks for level 5 (final challenge)
+            randomizeAllBlocksForLevel5();
+        }
+        
+        function randomizeAllBlocksForLevel5() {
+            const categories = document.querySelectorAll('#step-5 .block-category');
+            categories.forEach(category => {
+                const grid = category.querySelector('.code-blocks-grid');
+                if (!grid) return;
+                
+                const blocks = Array.from(grid.children);
+                
+                // Shuffle the blocks using Fisher-Yates algorithm
+                for (let i = blocks.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [blocks[i], blocks[j]] = [blocks[j], blocks[i]];
+                }
+                
+                // Clear and re-append in random order
+                grid.innerHTML = '';
+                blocks.forEach(block => grid.appendChild(block));
+            });
+        }
+
+        function setupLevel(level) {
+            const dropZone = document.getElementById(`code-drop-zone-${level}`);
+            const blocks = document.querySelectorAll(`[data-level="${level}"]`);
+            
+            if (!dropZone) return;
+            
+            // Randomize block order for this level
+            randomizeBlockOrder(level);
+            
+            // Setup drag and drop for blocks
+            blocks.forEach(block => {
+                block.addEventListener('dragstart', function(e) {
+                    e.dataTransfer.setData('text/plain', this.dataset.code);
+                    e.dataTransfer.setData('order', this.dataset.order);
+                    e.dataTransfer.setData('level', this.dataset.level);
+                });
+
+                // Also allow click to add
+                block.addEventListener('click', function() {
+                    if (!this.classList.contains('used')) {
+                        addBlockToLevel(this.dataset.code, this.dataset.order, this, level);
+                    }
+                });
+            });
+
+            // Setup drop zone
+            dropZone.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.style.borderColor = '#ff6b35';
+                this.style.backgroundColor = 'rgba(255, 107, 53, 0.1)';
+            });
+
+            dropZone.addEventListener('dragleave', function(e) {
+                this.style.borderColor = '#718096';
+                this.style.backgroundColor = 'transparent';
+            });
+
+            dropZone.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.style.borderColor = '#718096';
+                this.style.backgroundColor = 'transparent';
+                
+                const code = e.dataTransfer.getData('text/plain');
+                const order = e.dataTransfer.getData('order');
+                const blockLevel = e.dataTransfer.getData('level');
+                const block = document.querySelector(`[data-code="${code}"][data-level="${blockLevel}"]`);
+                
+                if (parseInt(blockLevel) === level) {
+                    addBlockToLevel(code, order, block, level);
+                }
+            });
+        }
+
+        function randomizeBlockOrder(level) {
+            const grid = document.querySelector(`#step-${level} .code-blocks-grid`);
+            if (!grid) return;
+            
+            const blocks = Array.from(grid.children);
+            
+            // Shuffle the blocks using Fisher-Yates algorithm
+            for (let i = blocks.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [blocks[i], blocks[j]] = [blocks[j], blocks[i]];
+            }
+            
+            // Clear and re-append in random order
+            grid.innerHTML = '';
+            blocks.forEach(block => grid.appendChild(block));
+        }
+
+        function addBlockToLevel(code, order, blockElement, level) {
+            if (blockElement.classList.contains('used')) return;
+
+            const dropZone = document.getElementById(`code-drop-zone-${level}`);
+            const levelData = gameState.levelData[level];
+            
+            // Create dropped block element with enhanced styling
+            const droppedBlock = document.createElement('div');
+            droppedBlock.className = 'dropped-block';
+            droppedBlock.innerHTML = `
+                <span class="block-number">${levelData.droppedBlocks.length + 1}</span>
+                ${code}
+                <button class="remove-btn" onclick="removeBlockFromLevel(${levelData.droppedBlocks.length}, ${level})" title="Ta bort block">&times;</button>
+            `;
+            droppedBlock.dataset.order = order;
+            droppedBlock.dataset.index = levelData.droppedBlocks.length;
+
+            // Add visual feedback for correct/incorrect placement
+            const expectedOrder = levelData.droppedBlocks.length + 1;
+            if (parseInt(order) === expectedOrder) {
+                droppedBlock.classList.add('correct-order');
+                showMiniSuccess();
+            } else {
+                droppedBlock.classList.add('wrong-order');
+                showMiniHint();
+            }
+
+            dropZone.appendChild(droppedBlock);
+            dropZone.classList.add('has-blocks');
+
+            // Mark original block as used with animation
+            blockElement.classList.add('used');
+            blockElement.style.transform = 'scale(0.9)';
+            setTimeout(() => {
+                blockElement.style.transform = 'scale(1)';
+            }, 200);
+
+            // Add to dropped blocks array
+            levelData.droppedBlocks.push({
+                code: code,
+                order: parseInt(order),
+                element: droppedBlock,
+                originalBlock: blockElement
+            });
+
+            // Store in global array for final code generation
+            gameState.allBlocks.push({
+                code: code,
+                order: parseInt(order),
+                level: level,
+                globalOrder: getGlobalOrder(level, parseInt(order))
+            });
+
+            updateLevelProgress(level);
+            checkLevelCompletion(level);
+            updatePlanet(level);
+        }
+
+        function getGlobalOrder(level, localOrder) {
+            const offsets = { 1: 0, 2: 3, 3: 6, 4: 10 };
+            return offsets[level] + localOrder;
+        }
+
+        function goToStep(step) {
+            // Hide all steps
+            document.querySelectorAll('.step-container').forEach(container => {
+                container.classList.remove('active');
+            });
+            
+            // Show current step
+            document.getElementById(`step-${step}`).classList.add('active');
+            
+            // Update timeline
+            updateTimeline(step);
+            
+            gameState.currentLevel = step;
+        }
+
+        function updateTimeline(currentStep) {
+            const steps = document.querySelectorAll('.timeline-step');
+            const progress = document.getElementById('timeline-progress');
+            
+            steps.forEach((step, index) => {
+                const stepNumber = index + 1;
+                step.classList.remove('current', 'completed');
+                
+                if (stepNumber < currentStep || gameState.completedLevels.includes(stepNumber)) {
+                    step.classList.add('completed');
+                } else if (stepNumber === currentStep) {
+                    step.classList.add('current');
+                }
+            });
+            
+            // Update progress bar
+            const completedCount = gameState.completedLevels.length;
+            const progressPercent = (completedCount / 5) * 100;
+            progress.style.width = progressPercent + '%';
+        }
+
+        function completeLevel(level) {
+            if (!gameState.completedLevels.includes(level)) {
+                gameState.completedLevels.push(level);
+            }
+            
+            // Show celebration
+            showLevelCompletion(level);
+            
+            // Move to next level
+            if (level < 5) {
+                setTimeout(() => {
+                    goToStep(level + 1);
+                }, 2000);
+            }
+        }
+
+        function showLevelCompletion(level) {
+            const message = document.createElement('div');
+            message.className = 'feedback-message show';
+            message.innerHTML = `🎉 Nivå ${level} klar! Bra jobbat!`;
+            message.style.background = 'linear-gradient(45deg, #28a745, #20c997)';
+            
+            const container = document.querySelector(`#step-${level}`);
+            container.appendChild(message);
+            
+            setTimeout(() => message.remove(), 3000);
+        }
+
+        function showMiniSuccess() {
+            // Create floating success indicator
+            const success = document.createElement('div');
+            success.textContent = '✓';
+            success.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                font-size: 3em;
+                color: #28a745;
+                font-weight: bold;
+                pointer-events: none;
+                z-index: 1000;
+                animation: successPop 0.8s ease-out forwards;
+            `;
+            
+            document.body.appendChild(success);
+            setTimeout(() => success.remove(), 800);
+        }
+
+        function showMiniHint() {
+            // Create floating hint indicator
+            const hint = document.createElement('div');
+            hint.textContent = '🤔';
+            hint.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                font-size: 2em;
+                pointer-events: none;
+                z-index: 1000;
+                animation: hintBounce 0.6s ease-out forwards;
+            `;
+            
+            document.body.appendChild(hint);
+            setTimeout(() => hint.remove(), 600);
+        }
+
+        function removeBlockFromLevel(index, level) {
+            const levelData = gameState.levelData[level];
+            const blockData = levelData.droppedBlocks[index];
+            if (!blockData) return;
+
+            // Remove from DOM
+            blockData.element.remove();
+            
+            // Mark original block as available
+            blockData.originalBlock.classList.remove('used');
+            
+            // Remove from level array
+            levelData.droppedBlocks.splice(index, 1);
+            
+            // Remove from global array
+            gameState.allBlocks = gameState.allBlocks.filter(block => 
+                !(block.code === blockData.code && block.level === level)
+            );
+            
+            // Update indices for remaining blocks
+            levelData.droppedBlocks.forEach((block, i) => {
+                block.element.dataset.index = i;
+                const removeBtn = block.element.querySelector('.remove-btn');
+                removeBtn.setAttribute('onclick', `removeBlockFromLevel(${i}, ${level})`);
+            });
+
+            // Check if drop zone is empty
+            if (levelData.droppedBlocks.length === 0) {
+                document.getElementById(`code-drop-zone-${level}`).classList.remove('has-blocks');
+            }
+
+            updateLevelProgress(level);
+            checkLevelCompletion(level);
+        }
+
+        function updateLevelProgress(level) {
+            const levelData = gameState.levelData[level];
+            const progress = (levelData.droppedBlocks.length / levelData.totalBlocks) * 100;
+            
+            const progressElement = document.getElementById(`progress-${level}`);
+            const blocksPlacedElement = document.getElementById(`blocks-placed-${level}`);
+            const totalBlocksElement = document.getElementById(`total-blocks-${level}`);
+            
+            if (progressElement) progressElement.style.width = progress + '%';
+            if (blocksPlacedElement) blocksPlacedElement.textContent = levelData.droppedBlocks.length;
+            if (totalBlocksElement) totalBlocksElement.textContent = levelData.totalBlocks;
+        }
+
+        function generatePropertyBlocks() {
+            const tempValue = document.getElementById('temp-input').value;
+            const co2Value = document.getElementById('co2-input').value;
+            const formValue = document.getElementById('form-input').value;
+            
+            const container = document.getElementById('property-blocks-container');
+            container.innerHTML = '';
+            
+            // Create property blocks with user values
+            const blocks = [
+                { code: `        self.temperatur = ${tempValue}`, display: `self.temperatur = <span class="number">${tempValue}</span>` },
+                { code: `        self.co2 = ${co2Value}`, display: `self.co2 = <span class="number">${co2Value}</span>` },
+                { code: `        self.form = "${formValue}"`, display: `self.form = <span class="string">"${formValue}"</span>` }
+            ];
+            
+            blocks.forEach((block, index) => {
+                const blockElement = document.createElement('div');
+                blockElement.className = 'scratch-block property-block';
+                blockElement.dataset.code = block.code;
+                blockElement.dataset.order = index + 1;
+                blockElement.dataset.level = '2';
+                blockElement.innerHTML = block.display;
+                
+                // Add drag and click functionality
+                blockElement.addEventListener('dragstart', function(e) {
+                    e.dataTransfer.setData('text/plain', this.dataset.code);
+                    e.dataTransfer.setData('order', this.dataset.order);
+                    e.dataTransfer.setData('level', this.dataset.level);
+                });
+
+                blockElement.addEventListener('click', function() {
+                    if (!this.classList.contains('used')) {
+                        addBlockToLevel(this.dataset.code, this.dataset.order, this, 2);
+                    }
+                });
+                
+                container.appendChild(blockElement);
+            });
+            
+            // Update drop zone hint
+            const dropZone = document.getElementById('code-drop-zone-2');
+            const hint = dropZone.querySelector('.drop-hint');
+            if (hint) {
+                hint.textContent = 'Dra egenskaps-block hit (ordningen spelar ingen roll)!';
+            }
+            
+            // Store user values for later use
+            gameState.userValues = {
+                temperature: parseInt(tempValue),
+                co2: parseInt(co2Value),
+                form: formValue
+            };
+        }
+
+        function checkLevelCompletion(level) {
+            const levelData = gameState.levelData[level];
+            const nextBtn = document.getElementById(`next-btn-${level}`);
+            const finishBtn = document.getElementById('finish-btn');
+            const finishBtn5 = document.getElementById('finish-btn-5');
+            
+            if (levelData.droppedBlocks.length === levelData.totalBlocks) {
+                let isCorrectOrder = false;
+                
+                if (level === 2) {
+                    // For level 2 (properties), order doesn't matter - just check if all blocks are placed
+                    isCorrectOrder = true;
+                } else {
+                    // For other levels, check exact order
+                    const currentOrder = levelData.droppedBlocks.map(block => block.order);
+                    isCorrectOrder = JSON.stringify(currentOrder) === JSON.stringify(levelData.correctOrder);
+                }
+                
+                if (isCorrectOrder) {
+                    if (level < 4) {
+                        if (nextBtn) nextBtn.disabled = false;
+                    } else if (level === 4) {
+                        // Show complete code when level 4 is completed
+                        showCompleteCode();
+                        const nextBtn4 = document.getElementById('next-btn-4');
+                        if (nextBtn4) nextBtn4.disabled = false;
+                    } else if (level === 5) {
+                        if (finishBtn5) finishBtn5.disabled = false;
+                    }
+                    
+                    // Add celebration effect
+                    celebrateLevelCompletion(level);
+                } else {
+                    // Show order hint
+                    showLevelOrderHint(level);
+                }
+            } else {
+                if (level < 4) {
+                    if (nextBtn) nextBtn.disabled = true;
+                } else if (level === 4) {
+                    // Hide complete code if level 4 is not completed
+                    hideCompleteCode();
+                    const nextBtn4 = document.getElementById('next-btn-4');
+                    if (nextBtn4) nextBtn4.disabled = true;
+                } else if (level === 5) {
+                    if (finishBtn5) finishBtn5.disabled = true;
+                }
+            }
+        }
+
+        function celebrateLevelCompletion(level) {
+            const planet = document.getElementById(`planet-${level}`);
+            if (planet) {
+                planet.classList.add('glowing');
+                planet.style.animation = 'planetGlow 1s ease-in-out infinite alternate, rotate 4s linear infinite';
+            }
+            
+            // Create celebration particles for this level
+            createLevelCelebrationParticles(level);
+        }
+
+        function createLevelCelebrationParticles(level) {
+            const container = document.querySelector(`#step-${level}`);
+            for (let i = 0; i < 10; i++) {
+                const particle = document.createElement('div');
+                particle.textContent = ['🎉', '✨', '🌟', '💫'][Math.floor(Math.random() * 4)];
+                particle.style.cssText = `
+                    position: absolute;
+                    font-size: 1.5em;
+                    pointer-events: none;
+                    z-index: 100;
+                    left: ${Math.random() * 100}%;
+                    top: ${Math.random() * 100}%;
+                    animation: celebrationFloat 2s ease-out forwards;
+                `;
+                container.appendChild(particle);
+                
+                setTimeout(() => particle.remove(), 2000);
+            }
+        }
+
+        function showLevelOrderHint(level) {
+            const levelData = gameState.levelData[level];
+            const wrongBlocks = levelData.droppedBlocks.filter((block, index) => 
+                block.order !== index + 1
+            );
+            
+            if (wrongBlocks.length > 0) {
+                const hintMessage = document.createElement('div');
+                hintMessage.className = 'feedback-message show';
+                hintMessage.innerHTML = `🔄 Tips: ${wrongBlocks.length} block är i fel ordning. Kolla de gula blocken!`;
+                hintMessage.style.background = 'linear-gradient(45deg, #ffc107, #fd7e14)';
+                
+                const container = document.querySelector(`#step-${level} .button-group`);
+                container.parentNode.insertBefore(hintMessage, container);
+                
+                setTimeout(() => hintMessage.remove(), 4000);
+            }
+        }
+
+        function resetLevel(level) {
+            const levelData = gameState.levelData[level];
+            
+            // Clear all dropped blocks for this level
+            while (levelData.droppedBlocks.length > 0) {
+                removeBlockFromLevel(0, level);
+            }
+            
+            // Reset all original blocks for this level
+            document.querySelectorAll(`[data-level="${level}"]`).forEach(block => {
+                block.classList.remove('used');
+            });
+            
+            // Hide complete code if resetting level 4
+            if (level === 4) {
+                hideCompleteCode();
+            }
+            
+            updateLevelProgress(level);
+        }
+
+
+
+        function updatePlanet(level) {
+            updatePlanetAppearance(`planet-${level}`);
+            
+            // Add some visual effects
+            const planet = document.getElementById(`planet-${level}`);
+            if (planet) {
+                planet.style.transform = 'scale(1.1)';
+                setTimeout(() => {
+                    planet.style.transform = 'scale(1)';
+                }, 300);
+            }
+        }
+
+        function showGameCompletion() {
+            // Show epic celebration within current level
+            createEpicCelebration();
+            
+            // Simulate "sound effects" with visual feedback
+            simulateSoundEffects();
+            
+            // Show completion message
+            const message = document.createElement('div');
+            message.className = 'feedback-message show';
+            message.innerHTML = `🎉 GRATTIS! Du har byggt en komplett Python-klass! Du är nu en riktig programmerare! 🐍✨`;
+            message.style.background = 'linear-gradient(45deg, #28a745, #20c997)';
+            message.style.fontSize = '1.4em';
+            message.style.padding = '30px';
+            
+            const container = document.querySelector('#step-5');
+            container.appendChild(message);
+            
+            // Add restart button after celebration
+            setTimeout(() => {
+                const restartBtn = document.createElement('button');
+                restartBtn.className = 'btn';
+                restartBtn.innerHTML = '🔄 Spela igen';
+                restartBtn.onclick = restartGame;
+                restartBtn.style.marginTop = '20px';
+                
+                message.appendChild(restartBtn);
+            }, 3000);
+        }
+
+        function createEpicCelebration() {
+            // Create multiple waves of celebration particles
+            for (let wave = 0; wave < 3; wave++) {
+                setTimeout(() => {
+                    for (let i = 0; i < 25; i++) {
+                        const particle = document.createElement('div');
+                        particle.textContent = ['🎉', '✨', '🌟', '💫', '🎊', '🚀', '🌍', '💻'][Math.floor(Math.random() * 8)];
+                        particle.style.cssText = `
+                            position: fixed;
+                            font-size: ${1.5 + Math.random() * 2}em;
+                            pointer-events: none;
+                            z-index: 1000;
+                            left: ${Math.random() * 100}%;
+                            top: 100%;
+                            animation: epicFloat ${3 + Math.random() * 2}s ease-out forwards;
+                        `;
+                        document.body.appendChild(particle);
+                        
+                        setTimeout(() => particle.remove(), 5000);
+                    }
+                }, wave * 1000);
+            }
+        }
+
+        function simulateSoundEffects() {
+            // Create visual "sound waves" to simulate audio feedback
+            const soundWaves = ['🔊', '🎵', '🎶', '📢'];
+            soundWaves.forEach((wave, index) => {
+                setTimeout(() => {
+                    const soundElement = document.createElement('div');
+                    soundElement.textContent = wave;
+                    soundElement.style.cssText = `
+                        position: fixed;
+                        top: 20px;
+                        right: 20px;
+                        font-size: 2em;
+                        pointer-events: none;
+                        z-index: 1000;
+                        animation: soundPulse 0.5s ease-out forwards;
+                    `;
+                    document.body.appendChild(soundElement);
+                    
+                    setTimeout(() => soundElement.remove(), 500);
+                }, index * 200);
+            });
+        }
+
+
+
+        function showCompleteCode() {
+            const completeCodeSection = document.getElementById('complete-code-section');
+            const completeCodeDisplay = document.getElementById('complete-code-display');
+            
+            // Use user values if available, otherwise use defaults
+            const userValues = gameState.userValues || { temperature: 15, co2: 380, form: 'rund' };
+            
+            const completeCodeHTML = `<span class="keyword">class</span> <span class="class-name">Jorden</span>:
+    <span class="keyword">def</span> <span class="function">__init__</span>(<span class="self">self</span>):
+        <span class="self">self</span>.<span class="variable">temperatur</span> = <span class="number">${userValues.temperature}</span>
+        <span class="self">self</span>.<span class="variable">co2</span> = <span class="number">${userValues.co2}</span>
+        <span class="self">self</span>.<span class="variable">form</span> = <span class="string">"${userValues.form}"</span>
+
+    <span class="keyword">def</span> <span class="function">update</span>(<span class="self">self</span>):
+        <span class="keyword">if</span> <span class="self">self</span>.<span class="variable">co2</span> > <span class="number">400</span>:
+            <span class="self">self</span>.<span class="variable">temperatur</span> += <span class="number">2</span>
+            <span class="function">print</span>(<span class="string">"Temperaturen stiger 🌡️"</span>)
+        <span class="keyword">else</span>:
+            <span class="self">self</span>.<span class="variable">temperatur</span> -= <span class="number">1</span>
+            <span class="function">print</span>(<span class="string">"Temperaturen sjunker ❄️"</span>)
+
+<span class="comment"># Skapa ett objekt</span>
+<span class="variable">jorden</span> = <span class="function">Jorden</span>()
+
+<span class="comment"># Ändra värden</span>
+<span class="variable">jorden</span>.<span class="variable">co2</span> = <span class="number">450</span>
+
+<span class="comment"># Använd objektet</span>
+<span class="variable">jorden</span>.<span class="function">update</span>()
+
+<span class="comment"># Resultat: ${userValues.co2 > 400 ? 'Temperaturen stiger 🌡️' : 'Temperaturen sjunker ❄️'}</span>`;
+
+            completeCodeDisplay.innerHTML = completeCodeHTML;
+            completeCodeSection.style.display = 'block';
+            
+            // Smooth scroll to the code section
+            setTimeout(() => {
+                completeCodeSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 100);
+        }
+
+        function hideCompleteCode() {
+            const completeCodeSection = document.getElementById('complete-code-section');
+            completeCodeSection.style.display = 'none';
+        }
+
+        function generateFinalCode() {
+            const finalCodeHTML = `<span class="keyword">class</span> <span class="class-name">Jorden</span>:
+    <span class="keyword">def</span> <span class="function">__init__</span>(<span class="self">self</span>):
+        <span class="self">self</span>.<span class="variable">temperatur</span> = <span class="number">15</span>
+        <span class="self">self</span>.<span class="variable">co2</span> = <span class="number">380</span>
+        <span class="self">self</span>.<span class="variable">form</span> = <span class="string">"rund"</span>
+
+    <span class="keyword">def</span> <span class="function">update</span>(<span class="self">self</span>):
+        <span class="keyword">if</span> <span class="self">self</span>.<span class="variable">co2</span> > <span class="number">400</span>:
+            <span class="self">self</span>.<span class="variable">temperatur</span> += <span class="number">2</span>
+        <span class="keyword">else</span>:
+            <span class="self">self</span>.<span class="variable">temperatur</span> -= <span class="number">1</span>
+
+<span class="comment"># Skapa ett objekt</span>
+<span class="variable">jorden</span> = <span class="function">Jorden</span>()
+
+<span class="comment"># Ändra värden</span>
+<span class="variable">jorden</span>.<span class="variable">co2</span> = <span class="number">450</span>
+
+<span class="comment"># Använd objektet</span>
+<span class="variable">jorden</span>.<span class="function">update</span>()`;
+
+            document.getElementById('final-code').innerHTML = finalCodeHTML;
+        }
+
+        function restartGame() {
+            // Reset game state
+            gameState = {
+                currentLevel: 1,
+                completedLevels: [],
+                levelData: {
+                    1: { droppedBlocks: [], totalBlocks: 3, correctOrder: [1, 2, 3] },
+                    2: { droppedBlocks: [], totalBlocks: 3, correctOrder: [1, 2, 3] },
+                    3: { droppedBlocks: [], totalBlocks: 6, correctOrder: [1, 2, 3, 4, 5, 6] },
+                    4: { droppedBlocks: [], totalBlocks: 3, correctOrder: [1, 2, 3] },
+                    5: { droppedBlocks: [], totalBlocks: 15, correctOrder: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15] }
+                },
+                allBlocks: []
+            };
+            
+            gameData = {
+                temperature: 15,
+                co2: 380,
+                age: 4500000000,
+                solarEnergy: 100
+            };
+            
+            // Reset all levels
+            for (let level = 1; level <= 5; level++) {
+                resetLevel(level);
+            }
+            
+            // Remove any completion messages
+            document.querySelectorAll('.feedback-message').forEach(msg => msg.remove());
+            
+            // Randomize blocks again for level 5
+            randomizeAllBlocksForLevel5();
+            
+            // Go back to first level
+            goToStep(1);
+            
+            // Reset planet
+            updatePlanetAppearance('planet-1');
+        }
+
+        function generateFinalCode() {
+            // Sort all blocks by their global order
+            const sortedBlocks = gameState.allBlocks.sort((a, b) => a.globalOrder - b.globalOrder);
+            
+            const finalCode = sortedBlocks.map(block => block.code).join('\n');
+            
+            document.getElementById('final-code').textContent = finalCode;
+        }
+
+        function showFullCode() {
+            const codeElement = document.getElementById('final-code');
+            if (codeElement.style.maxHeight === 'none') {
+                codeElement.style.maxHeight = '400px';
+            } else {
+                codeElement.style.maxHeight = 'none';
+            }
+        }
+
+
+
+        // Initialize the game
+        document.addEventListener('DOMContentLoaded', function() {
+            initGame();
+            updatePlanetAppearance();
+        });
+    </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'995381a7b7a597c6',t:'MTc2MTU4MTg3Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
