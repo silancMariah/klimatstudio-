@@ -23,7 +23,7 @@ Vill du visa barnen hur de kan se jorden snurra i 3D?
 Det är perfekt när du vill använda en bild i ditt Python-program, eftersom VPython kan hämta bilder direkt från internet.
 
 💡 Exempel:
-1. Gå till [https://imgur.com/upload](https://imgur.com/upload)  
+1. Gå till [imgur.com](https://imgur.com/)
 2. Leta efter Earth texture, Sun texture...osv
 3. Högerklicka på bilden och välj **"Copy image address"**
 4. Klistra in länken i din kod:
