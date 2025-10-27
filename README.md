@@ -6,6 +6,9 @@ Ett lärorikt projekt där barn lär sig programmera i **Python** genom att skap
 
 # PASS 1: 
 
+## 🌍 Skapa jorden i 3D med VPython
+Vill du visa barnen hur de kan se jorden snurra i 3D?  
+[Öppna koden här](Pass1/jorden_vpython.py)
 ### 🔧 Installation
 
 1. Se till att du har **Python 3** installerat.
@@ -30,3 +33,12 @@ Det är perfekt när du vill använda en bild i ditt Python-program, eftersom VP
 
 ⚠️ OBS! Sidan kan innehålla icke barnvänliga memes,
 så det bästa är om ni som ledare väljer ut en länk åt barnen i förväg.
+
+## 🧩 Extrauppgifter
+
+[🕹️ Ditt första Turtle-spel](Pass1/jorden_turtle.py)
+
+Barnen kan använda den här som **extrauppgift** om de vill utforska vidare och skapa ett mer **interaktivt Turtle-spel** 🐢✨  
+
+📘 [Öppna Turtle Cheat Sheet (PDF)](Pass1/turtle-cheatsheet.pdf)  
+*Cheat sheeten hjälper barnen förstå hur Turtle fungerar och låter dem experimentera fritt med färger, rörelser och former!*
