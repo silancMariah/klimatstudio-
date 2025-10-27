@@ -40,5 +40,5 @@ så det bästa är om ni som ledare väljer ut en länk åt barnen i förväg.
 
 Barnen kan använda den här som **extrauppgift** om de vill utforska vidare och skapa ett mer **interaktivt Turtle-spel** 🐢✨  
 
-📘 [Öppna Turtle Cheat Sheet (PDF)](Pass1/turtle-cheatsheet.pdf)  
+📘 [Öppna Turtle Cheat Sheet (PDF)](Pass1/info/turtle-cheatsheet.pdf)
 *Cheat sheeten hjälper barnen förstå hur Turtle fungerar och låter dem experimentera fritt med färger, rörelser och former!*
