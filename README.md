@@ -4,7 +4,9 @@ Ett lärorikt projekt där barn lär sig programmera i **Python** genom att skap
 
 ---
 
-## 🔧 Installation
+# PASS 1: 
+
+### 🔧 Installation
 
 1. Se till att du har **Python 3** installerat.
 2. Öppna din terminal och skriv:
@@ -12,7 +14,7 @@ Ett lärorikt projekt där barn lär sig programmera i **Python** genom att skap
    ```bash
    pip install vpython
 
-### 🖼️ Vad är Imgur?
+#### 🖼️ Vad är Imgur?
 
 **Imgur** är en gratis webbsida där du kan ladda upp bilder och få en direkt **bildlänk** (URL).  
 Det är perfekt när du vill använda en bild i ditt Python-program, eftersom VPython kan hämta bilder direkt från internet.
