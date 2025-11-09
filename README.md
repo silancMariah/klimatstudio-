@@ -8,9 +8,6 @@ Ett lärorikt projekt där barn lär sig programmera i **Python** genom att skap
 ---
 
 ## PASS 1: 
-### Installation
-
-
 
 ### Extrauppgifter 
 Barnen kan testa att **skapa sitt eget Turtle-spel** 
@@ -19,6 +16,6 @@ Barnen kan testa att **skapa sitt eget Turtle-spel**
 
 Barnen kan använda den här som **extrauppgift** om de vill utforska vidare och skapa ett mer **interaktivt Turtle-spel**.  
 
-[Öppna Turtle Cheat Sheet (PDF)](Pass1/info/Turtle_Cheetsheat.pdf)  
+[Öppna Turtle Cheatsheet (PDF)](Pass1/info/Turtle_Cheetsheat.pdf)  
 *Cheat sheeten hjälper barnen förstå hur Turtle fungerar och låter dem experimentera fritt med färger, rörelser och former!*
 
