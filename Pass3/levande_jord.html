@@ -1,0 +1,893 @@
+<!doctype html>
+<html lang="sv">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Chatbot</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+    body {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Arial', sans-serif;
+      overflow: hidden;
+      height: 100%;
+    }
+
+    html {
+      height: 100%;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    /* Intro Page Styles */
+    #intro-page {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #9ccfdc 0%, #e8d6f9 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    #intro-page.hidden {
+      display: none;
+    }
+
+    /* Rymdresa Stjärnor Animation */
+    .stars {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      overflow: hidden;
+      perspective: 1000px;
+    }
+
+    .star {
+      position: absolute;
+      background: white;
+      border-radius: 50%;
+      animation: starZoom linear infinite;
+    }
+
+    .star.small {
+      width: 1px;
+      height: 1px;
+    }
+
+    .star.medium {
+      width: 2px;
+      height: 2px;
+      box-shadow: 0 0 3px rgba(255, 255, 255, 0.8);
+    }
+
+    .star.large {
+      width: 3px;
+      height: 3px;
+      box-shadow: 0 0 6px rgba(255, 255, 255, 1), 0 0 10px rgba(156, 207, 220, 0.5);
+    }
+
+    @keyframes starZoom {
+      0% {
+        transform: translateZ(0) scale(0.5);
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+      }
+      90% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateZ(1000px) scale(2);
+        opacity: 0;
+      }
+    }
+
+    /* Nebula bakgrund för djup */
+    .nebula {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      overflow: hidden;
+      opacity: 0.3;
+    }
+
+    .nebula-cloud {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(60px);
+      animation: nebulaFloat 20s ease-in-out infinite;
+    }
+
+    @keyframes nebulaFloat {
+      0%, 100% {
+        transform: translate(0, 0) scale(1);
+        opacity: 0.3;
+      }
+      50% {
+        transform: translate(50px, 30px) scale(1.2);
+        opacity: 0.5;
+      }
+    }
+
+    /* Earth Animation - 200% större (400px) */
+    .earth-container {
+      position: relative;
+      width: 400px;
+      height: auto;
+      aspect-ratio: 1 / 1;
+      margin-bottom: 40px;
+      animation: flyIn 2s ease-out forwards;
+    }
+
+    @keyframes flyIn {
+      0% {
+        transform: translateX(-150%) scale(0.3) rotate(0deg);
+        opacity: 0;
+      }
+      100% {
+        transform: translateX(0) scale(1) rotate(360deg);
+        opacity: 1;
+      }
+    }
+
+    /* Glödande ljuseffekt runt jorden */
+    .earth-glow {
+      position: absolute;
+      width: 110%;
+      height: 110%;
+      top: -5%;
+      left: -5%;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(156, 207, 220, 0.4) 0%, transparent 70%);
+      opacity: 0.6;
+    }
+
+    .earth {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #7e8ba3 100%);
+      position: relative;
+      background-size: cover;
+      background-position: center;
+    }
+
+    /* Om du vill använda en bild för jorden, lägg till denna klass */
+    .earth.custom-image {
+      background-image: url('DIN_BILD_URL_HÄR');
+      background-size: cover;
+    }
+
+    .earth::before {
+      content: '';
+      position: absolute;
+      top: 20%;
+      left: 20%;
+      width: 30%;
+      height: 30%;
+      background: #2d5016;
+      border-radius: 50% 40% 60% 50%;
+      opacity: 0.7;
+    }
+
+    .earth::after {
+      content: '';
+      position: absolute;
+      bottom: 30%;
+      right: 15%;
+      width: 25%;
+      height: 35%;
+      background: #2d5016;
+      border-radius: 60% 50% 40% 60%;
+      opacity: 0.7;
+    }
+
+    /* Dölj pseudo-element om custom image används */
+    .earth.custom-image::before,
+    .earth.custom-image::after {
+      display: none;
+    }
+
+    /* Character Animation - 300% större (450px) */
+    .character {
+      font-size: 80px;
+      animation: popIn 1s ease-out 1.5s forwards;
+      opacity: 0;
+      transform: scale(0);
+      width: 450px;
+      height: auto;
+      aspect-ratio: 1 / 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    /* Om du vill använda en bild/GIF för karaktären */
+    .character.custom-image {
+      background-image: url('DIN_KARAKTÄR_URL_HÄR');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      font-size: 0; /* Döljer emoji om bild används */
+    }
+
+    /* Chat Bubble */
+    .chat-bubble {
+      background: #e8d6f9;
+      color: #000000;
+      padding: 15px 25px;
+      border-radius: 20px;
+      font-size: 18px;
+      font-weight: 500;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      white-space: nowrap;
+      animation: bubblePop 0.5s ease-out 2.5s forwards;
+      opacity: 0;
+      transform: scale(0);
+      margin-top: 30px;
+      margin-bottom: 30px;
+    }
+
+    @keyframes bubblePop {
+      0% {
+        opacity: 0;
+        transform: scale(0);
+      }
+      60% {
+        transform: scale(1.1);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @keyframes popIn {
+      0% {
+        opacity: 0;
+        transform: scale(0) rotate(-180deg);
+      }
+      60% {
+        transform: scale(1.2) rotate(10deg);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+      }
+    }
+
+    /* Welcome Text */
+    .welcome-text {
+      color: white;
+      font-size: 32px;
+      font-weight: bold;
+      text-align: center;
+      margin: 30px 20px;
+      animation: fadeIn 1s ease-out 2s forwards;
+      opacity: 0;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+      }
+    }
+
+    /* Button */
+    .start-button {
+      background: #e8d6f9;
+      color: #000000;
+      border: none;
+      padding: 18px 40px;
+      font-size: 20px;
+      font-weight: bold;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
+      animation: fadeIn 1s ease-out 2.5s forwards;
+      opacity: 0;
+    }
+
+    .start-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+      background: #d4c0e8;
+    }
+
+    .start-button:active {
+      transform: translateY(-1px);
+    }
+
+    /* Logo Styles */
+    .logo {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 120px;
+      height: auto;
+      z-index: 1000;
+      animation: fadeIn 1s ease-out 1s forwards;
+      opacity: 0;
+    }
+
+    /* Chat Page Styles */
+    #chat-page {
+      display: none;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #cfd6a4 0%, #e8d6f9 100%);
+      flex-direction: column;
+    }
+
+    #chat-page.active {
+      display: flex;
+    }
+
+    .chat-header {
+      background: white;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .chat-character {
+      font-size: 50px;
+    }
+
+    .chat-title {
+      font-size: 24px;
+      font-weight: bold;
+      color: #9ccfdc;
+    }
+
+    .chat-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 30px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .message-wrapper {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      max-width: 75%;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    .message-wrapper.ai {
+      align-self: flex-start;
+    }
+
+    .message-wrapper.user {
+      align-self: flex-end;
+      flex-direction: row-reverse;
+    }
+
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+
+    .avatar.ai {
+      background-color: #9ccfdc;
+    }
+
+    .avatar.user {
+      background-color: #e8d6f9;
+    }
+
+    .message {
+      padding: 15px 20px;
+      border-radius: 20px;
+      font-size: 16px;
+      line-height: 1.5;
+      flex: 1;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .message.ai {
+      background: white;
+      color: #000000;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      border-top-left-radius: 5px;
+    }
+
+    .message.user {
+      background: #9ccfdc;
+      color: #000000;
+      box-shadow: 0 2px 5px rgba(156, 207, 220, 0.3);
+      border-top-right-radius: 5px;
+    }
+
+    /* Typing Indicator */
+    .typing-indicator {
+      display: none;
+      align-items: center;
+      gap: 12px;
+      max-width: 75%;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    .typing-indicator.active {
+      display: flex;
+    }
+
+    .typing-dots {
+      background: white;
+      padding: 15px 20px;
+      border-radius: 20px;
+      border-top-left-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      display: flex;
+      gap: 5px;
+    }
+
+    .typing-dot {
+      width: 8px;
+      height: 8px;
+      background: #9ccfdc;
+      border-radius: 50%;
+      animation: typingBounce 1.4s infinite;
+    }
+
+    .typing-dot:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .typing-dot:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes typingBounce {
+      0%, 60%, 100% {
+        transform: translateY(0);
+      }
+      30% {
+        transform: translateY(-10px);
+      }
+    }
+
+    .chat-input-container {
+      background: white;
+      padding: 20px;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+      display: flex;
+      gap: 10px;
+    }
+
+    .chat-input {
+      flex: 1;
+      padding: 15px 20px;
+      border: 2px solid #e0e0e0;
+      border-radius: 25px;
+      font-size: 16px;
+      outline: none;
+      transition: border-color 0.3s ease;
+    }
+
+    .chat-input:focus {
+      border-color: #9ccfdc;
+    }
+
+    .send-button {
+      background: #9ccfdc;
+      color: #000000;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 25px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .send-button:hover {
+      background: #7db8c9;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(156, 207, 220, 0.4);
+    }
+
+    .send-button:active {
+      transform: translateY(0);
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body><!-- Intro Page -->
+  <div id="intro-page"><!-- Nebula bakgrund -->
+   <div class="nebula" id="nebula-container"></div><!-- Stjärnor -->
+   <div class="stars" id="stars-container"></div><img src="helloworld.png" alt="Hello World Logo" class="logo">
+   <div class="earth-container">
+    <div class="earth-glow"></div>
+    <div class="earth" id="earth-element"></div>
+   </div>
+   <div class="character" id="character-element">
+    🤖
+   </div>
+   <div class="chat-bubble" id="chat-bubble">
+    Hej
+   </div>
+   <div class="welcome-text" id="welcome-text">
+    Hejh, dags att använda din AI
+   </div><button class="start-button" id="start-button">Ta mig till min AI</button>
+  </div><!-- Chat Page -->
+  <div id="chat-page">
+   <div class="chat-header">
+    <div class="chat-character">
+     🤖
+    </div>
+    <div class="chat-title">
+     Min AI Assistent
+    </div>
+   </div>
+   <div class="chat-container" id="chat-container">
+    <div class="message-wrapper ai">
+     <div class="avatar ai" id="ai-avatar">
+      🤖
+     </div>
+     <div class="message ai" id="initial-question">
+      Hej vad vill du fråga mig
+     </div>
+    </div><!-- Typing Indicator -->
+    <div class="typing-indicator" id="typing-indicator">
+     <div class="avatar ai">
+      🤖
+     </div>
+     <div class="typing-dots">
+      <div class="typing-dot"></div>
+      <div class="typing-dot"></div>
+      <div class="typing-dot"></div>
+     </div>
+    </div>
+   </div>
+   <div class="chat-input-container"><input type="text" class="chat-input" id="chat-input" placeholder="Skriv din fråga här..."> <button class="send-button" id="send-button">Skicka</button>
+   </div>
+  </div>
+  <script>
+    // ============================================
+    // ELEMENT SDK CONFIGURATION
+    // ============================================
+    const defaultConfig = {
+      welcome_text: "Hejh, dags att använda din AI",
+      button_text: "Ta mig till min AI",
+      ai_question: "Hej vad vill du fråga mig",
+      input_placeholder: "Skriv din fråga här...",
+      primary_color: "#9ccfdc",
+      secondary_color: "#e8d6f9",
+      text_color: "#000000",
+      background_color: "#cfd6a4",
+      button_color: "#e8d6f9"
+    };
+
+    async function onConfigChange(config) {
+      const welcomeText = config.welcome_text || defaultConfig.welcome_text;
+      const buttonText = config.button_text || defaultConfig.button_text;
+      const aiQuestion = config.ai_question || defaultConfig.ai_question;
+      const inputPlaceholder = config.input_placeholder || defaultConfig.input_placeholder;
+      const primaryColor = config.primary_color || defaultConfig.primary_color;
+      const secondaryColor = config.secondary_color || defaultConfig.secondary_color;
+      const textColor = config.text_color || defaultConfig.text_color;
+      const backgroundColor = config.background_color || defaultConfig.background_color;
+      const buttonColor = config.button_color || defaultConfig.button_color;
+
+      document.getElementById('welcome-text').textContent = welcomeText;
+      document.getElementById('start-button').textContent = buttonText;
+      document.getElementById('initial-question').textContent = aiQuestion;
+      document.getElementById('chat-input').placeholder = inputPlaceholder;
+
+      const introPage = document.getElementById('intro-page');
+      introPage.style.background = `linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%)`;
+
+      const chatPage = document.getElementById('chat-page');
+      chatPage.style.background = `linear-gradient(135deg, ${backgroundColor} 0%, #c3cfe2 100%)`;
+
+      const startButton = document.getElementById('start-button');
+      startButton.style.background = buttonColor;
+      startButton.style.color = primaryColor;
+
+      const sendButton = document.getElementById('send-button');
+      sendButton.style.background = primaryColor;
+
+      const chatTitle = document.querySelector('.chat-title');
+      chatTitle.style.color = primaryColor;
+
+      const userMessages = document.querySelectorAll('.message.user');
+      userMessages.forEach(msg => {
+        msg.style.background = primaryColor;
+      });
+    }
+
+    function mapToCapabilities(config) {
+      return {
+        recolorables: [
+          {
+            get: () => config.primary_color || defaultConfig.primary_color,
+            set: (value) => {
+              config.primary_color = value;
+              window.elementSdk.setConfig({ primary_color: value });
+            }
+          },
+          {
+            get: () => config.secondary_color || defaultConfig.secondary_color,
+            set: (value) => {
+              config.secondary_color = value;
+              window.elementSdk.setConfig({ secondary_color: value });
+            }
+          },
+          {
+            get: () => config.text_color || defaultConfig.text_color,
+            set: (value) => {
+              config.text_color = value;
+              window.elementSdk.setConfig({ text_color: value });
+            }
+          },
+          {
+            get: () => config.background_color || defaultConfig.background_color,
+            set: (value) => {
+              config.background_color = value;
+              window.elementSdk.setConfig({ background_color: value });
+            }
+          },
+          {
+            get: () => config.button_color || defaultConfig.button_color,
+            set: (value) => {
+              config.button_color = value;
+              window.elementSdk.setConfig({ button_color: value });
+            }
+          }
+        ],
+        borderables: [],
+        fontEditable: undefined,
+        fontSizeable: undefined
+      };
+    }
+
+    function mapToEditPanelValues(config) {
+      return new Map([
+        ["welcome_text", config.welcome_text || defaultConfig.welcome_text],
+        ["button_text", config.button_text || defaultConfig.button_text],
+        ["ai_question", config.ai_question || defaultConfig.ai_question],
+        ["input_placeholder", config.input_placeholder || defaultConfig.input_placeholder]
+      ]);
+    }
+
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities,
+        mapToEditPanelValues
+      });
+    }
+
+    // ============================================
+    // SKAPA RYMDRESA STJÄRNOR
+    // ============================================
+    function createStars() {
+      const starsContainer = document.getElementById('stars-container');
+      const numberOfStars = 200; // Mycket fler stjärnor!
+      
+      for (let i = 0; i < numberOfStars; i++) {
+        const star = document.createElement('div');
+        
+        // Olika storlekar på stjärnor
+        const size = Math.random();
+        if (size < 0.6) {
+          star.className = 'star small';
+        } else if (size < 0.9) {
+          star.className = 'star medium';
+        } else {
+          star.className = 'star large';
+        }
+        
+        // Slumpmässig position
+        star.style.left = Math.random() * 100 + '%';
+        star.style.top = Math.random() * 100 + '%';
+        
+        // Olika hastigheter för djupeffekt
+        const duration = 3 + Math.random() * 4;
+        star.style.animationDuration = duration + 's';
+        star.style.animationDelay = Math.random() * 5 + 's';
+        
+        starsContainer.appendChild(star);
+      }
+    }
+
+    // ============================================
+    // SKAPA NEBULA MOLN
+    // ============================================
+    function createNebula() {
+      const nebulaContainer = document.getElementById('nebula-container');
+      const colors = ['#9ccfdc', '#e8d6f9', '#b8a9d4', '#7db8c9'];
+      
+      for (let i = 0; i < 5; i++) {
+        const cloud = document.createElement('div');
+        cloud.className = 'nebula-cloud';
+        
+        const size = 200 + Math.random() * 300;
+        cloud.style.width = size + 'px';
+        cloud.style.height = size + 'px';
+        cloud.style.left = Math.random() * 100 + '%';
+        cloud.style.top = Math.random() * 100 + '%';
+        cloud.style.background = colors[Math.floor(Math.random() * colors.length)];
+        cloud.style.animationDelay = Math.random() * 10 + 's';
+        cloud.style.animationDuration = (15 + Math.random() * 10) + 's';
+        
+        nebulaContainer.appendChild(cloud);
+      }
+    }
+
+    // Skapa rymdeffekter när sidan laddas
+    createNebula();
+    createStars();
+
+    // ============================================
+    // CUSTOM IMAGE SETUP
+    // ============================================
+    const earthElement = document.getElementById('earth-element');
+    earthElement.classList.add('custom-image');
+    earthElement.style.backgroundImage = "url('earth_rotating.gif')";
+    
+    const characterElement = document.getElementById('character-element');
+    characterElement.classList.add('custom-image');
+    characterElement.style.backgroundImage = "url('r-unscreen.gif')";
+    characterElement.textContent = '';
+    
+    const aiAvatars = document.querySelectorAll('.avatar.ai');
+    aiAvatars.forEach(avatar => {
+      avatar.style.backgroundImage = "url('r-unscreen.gif')";
+      avatar.textContent = '';
+    });
+
+    // ============================================
+    // PAGE NAVIGATION
+    // ============================================
+    const startButton = document.getElementById('start-button');
+    const introPage = document.getElementById('intro-page');
+    const chatPage = document.getElementById('chat-page');
+
+    startButton.addEventListener('click', () => {
+      introPage.classList.add('hidden');
+      chatPage.classList.add('active');
+    });
+
+    // ============================================
+    // CHAT FUNCTIONALITY
+    // ============================================
+    const chatInput = document.getElementById('chat-input');
+    const sendButton = document.getElementById('send-button');
+    const chatContainer = document.getElementById('chat-container');
+    const typingIndicator = document.getElementById('typing-indicator');
+
+    async function sendMessage() {
+      const question = chatInput.value.trim();
+      if (!question) return;
+
+      addMessage(question, 'user');
+      chatInput.value = '';
+
+      // Visa "AI skriver..." indikator
+      typingIndicator.classList.add('active');
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+
+      try {
+        const response = await fetch('http://127.0.0.1:5000/ask', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ question: question })
+        });
+
+        const data = await response.json();
+        
+        // Dölj typing indicator och visa svar
+        setTimeout(() => {
+          typingIndicator.classList.remove('active');
+          addMessage(data.answer, 'ai');
+        }, 1000);
+
+      } catch (error) {
+        setTimeout(() => {
+          typingIndicator.classList.remove('active');
+          addMessage('Förlåt, jag kan inte svara just nu. Se till att Flask-servern körs!', 'ai');
+        }, 1000);
+      }
+    }
+
+    function addMessage(text, type) {
+      const wrapper = document.createElement('div');
+      wrapper.className = `message-wrapper ${type}`;
+      
+      const avatar = document.createElement('div');
+      avatar.className = `avatar ${type}`;
+      
+      if (type === 'ai') {
+        avatar.style.backgroundImage = "url('r-unscreen.gif')";
+        avatar.textContent = '';
+      } else {
+        avatar.textContent = '👤';
+      }
+      
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `message ${type}`;
+      
+      wrapper.appendChild(avatar);
+      wrapper.appendChild(messageDiv);
+      chatContainer.appendChild(wrapper);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+      
+      if (type === 'ai') {
+        typeMessage(messageDiv, text);
+      } else {
+        messageDiv.textContent = text;
+      }
+    }
+    
+    function typeMessage(element, text) {
+      let index = 0;
+      element.textContent = '';
+      
+      const typingInterval = setInterval(() => {
+        if (index < text.length) {
+          element.textContent += text.charAt(index);
+          index++;
+          chatContainer.scrollTop = chatContainer.scrollHeight;
+        } else {
+          clearInterval(typingInterval);
+        }
+      }, 50);
+    }
+
+    sendButton.addEventListener('click', sendMessage);
+    chatInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        sendMessage();
+      }
+    });
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'99c733ee86fd5cc8',t:'MTc2Mjc5NTA0MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
