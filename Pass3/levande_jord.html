@@ -11,12 +11,14 @@
       margin: 0;
       padding: 0;
       font-family: 'Arial', sans-serif;
-      overflow: hidden;
+      overflow: auto;
       height: 100%;
+      min-height: 100%;
     }
 
     html {
       height: 100%;
+      overflow: auto;
     }
 
     * {
@@ -27,13 +29,14 @@
     #intro-page {
       position: relative;
       width: 100%;
-      height: 100%;
+      min-height: 100%;
       background: linear-gradient(135deg, #9ccfdc 0%, #e8d6f9 100%);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      overflow: hidden;
+      overflow: auto;
+      padding: 20px;
     }
 
     #intro-page.hidden {
@@ -126,11 +129,18 @@
     /* Earth Animation - 200% större (400px) */
     .earth-container {
       position: relative;
-      width: 400px;
+      width: 100%;
+      max-width: 400px;
       height: auto;
       aspect-ratio: 1 / 1;
-      margin-bottom: 40px;
+      margin-bottom: 20px;
       animation: flyIn 2s ease-out forwards;
+    }
+
+    @media (max-width: 768px) {
+      .earth-container {
+        max-width: 250px;
+      }
     }
 
     @keyframes flyIn {
@@ -208,13 +218,21 @@
       animation: popIn 1s ease-out 1.5s forwards;
       opacity: 0;
       transform: scale(0);
-      width: 450px;
+      width: 100%;
+      max-width: 450px;
       height: auto;
       aspect-ratio: 1 / 1;
       display: flex;
       align-items: center;
       justify-content: center;
       position: relative;
+    }
+
+    @media (max-width: 768px) {
+      .character {
+        max-width: 280px;
+        font-size: 50px;
+      }
     }
 
     /* Om du vill använda en bild/GIF för karaktären */
@@ -239,8 +257,8 @@
       animation: bubblePop 0.5s ease-out 2.5s forwards;
       opacity: 0;
       transform: scale(0);
-      margin-top: 30px;
-      margin-bottom: 30px;
+      margin-top: 15px;
+      margin-bottom: 15px;
     }
 
     @keyframes bubblePop {
@@ -277,10 +295,17 @@
       font-size: 32px;
       font-weight: bold;
       text-align: center;
-      margin: 30px 20px;
+      margin: 20px 20px 15px 20px;
       animation: fadeIn 1s ease-out 2s forwards;
       opacity: 0;
       text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    @media (max-width: 768px) {
+      .welcome-text {
+        font-size: 24px;
+        margin: 15px 15px 10px 15px;
+      }
     }
 
     @keyframes fadeIn {
@@ -303,6 +328,14 @@
       transition: all 0.3s ease;
       animation: fadeIn 1s ease-out 2.5s forwards;
       opacity: 0;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 768px) {
+      .start-button {
+        padding: 15px 30px;
+        font-size: 18px;
+      }
     }
 
     .start-button:hover {
@@ -327,10 +360,19 @@
       opacity: 0;
     }
 
+    @media (max-width: 768px) {
+      .logo {
+        width: 80px;
+        top: 10px;
+        right: 10px;
+      }
+    }
+
     /* Chat Page Styles */
     #chat-page {
       display: none;
       width: 100%;
+      min-height: 100%;
       height: 100%;
       background: linear-gradient(135deg, #cfd6a4 0%, #e8d6f9 100%);
       flex-direction: column;
@@ -374,6 +416,12 @@
       align-items: flex-start;
       max-width: 75%;
       animation: slideIn 0.3s ease-out;
+    }
+
+    @media (max-width: 768px) {
+      .message-wrapper {
+        max-width: 85%;
+      }
     }
 
     .message-wrapper.ai {
@@ -440,6 +488,45 @@
       border-top-right-radius: 5px;
     }
 
+    /* Audio Button */
+    .audio-button {
+      background: #9ccfdc;
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      font-size: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      flex-shrink: 0;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .audio-button:hover {
+      background: #7db8c9;
+      transform: scale(1.1);
+    }
+
+    .audio-button:active {
+      transform: scale(0.95);
+    }
+
+    .audio-button.playing {
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.1);
+      }
+    }
+
     /* Typing Indicator */
     .typing-indicator {
       display: none;
@@ -494,16 +581,31 @@
       box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
       display: flex;
       gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 768px) {
+      .chat-input-container {
+        padding: 15px;
+      }
     }
 
     .chat-input {
       flex: 1;
+      min-width: 200px;
       padding: 15px 20px;
       border: 2px solid #e0e0e0;
       border-radius: 25px;
       font-size: 16px;
       outline: none;
       transition: border-color 0.3s ease;
+    }
+
+    @media (max-width: 768px) {
+      .chat-input {
+        font-size: 14px;
+        padding: 12px 18px;
+      }
     }
 
     .chat-input:focus {
@@ -520,6 +622,13 @@
       font-weight: bold;
       cursor: pointer;
       transition: all 0.3s ease;
+    }
+
+    @media (max-width: 768px) {
+      .send-button {
+        font-size: 14px;
+        padding: 12px 25px;
+      }
     }
 
     .send-button:hover {
@@ -551,14 +660,12 @@
     Hej
    </div>
    <div class="welcome-text" id="welcome-text">
-    Hejh, dags att använda din AI
+    Hej, dags att använda din AI
    </div><button class="start-button" id="start-button">Ta mig till min AI</button>
   </div><!-- Chat Page -->
   <div id="chat-page">
    <div class="chat-header">
-    <div class="chat-character">
-     🤖
-    </div>
+    <div class="chat-character" style="background-image: url('/Users/silancetinkaya/klimatstudio-/Pass3/ai_blinking.gif'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
     <div class="chat-title">
      Min AI Assistent
     </div>
@@ -591,7 +698,7 @@
     // ELEMENT SDK CONFIGURATION
     // ============================================
     const defaultConfig = {
-      welcome_text: "Hejh, dags att använda din AI",
+      welcome_text: "Hej, dags att använda din AI",
       button_text: "Ta mig till min AI",
       ai_question: "Hej vad vill du fråga mig",
       input_placeholder: "Skriv din fråga här...",
@@ -708,12 +815,11 @@
     // ============================================
     function createStars() {
       const starsContainer = document.getElementById('stars-container');
-      const numberOfStars = 200; // Mycket fler stjärnor!
+      const numberOfStars = 200;
       
       for (let i = 0; i < numberOfStars; i++) {
         const star = document.createElement('div');
         
-        // Olika storlekar på stjärnor
         const size = Math.random();
         if (size < 0.6) {
           star.className = 'star small';
@@ -723,11 +829,9 @@
           star.className = 'star large';
         }
         
-        // Slumpmässig position
         star.style.left = Math.random() * 100 + '%';
         star.style.top = Math.random() * 100 + '%';
         
-        // Olika hastigheter för djupeffekt
         const duration = 3 + Math.random() * 4;
         star.style.animationDuration = duration + 's';
         star.style.animationDelay = Math.random() * 5 + 's';
@@ -760,7 +864,6 @@
       }
     }
 
-    // Skapa rymdeffekter när sidan laddas
     createNebula();
     createStars();
 
@@ -809,7 +912,6 @@
       addMessage(question, 'user');
       chatInput.value = '';
 
-      // Visa "AI skriver..." indikator
       typingIndicator.classList.add('active');
       chatContainer.scrollTop = chatContainer.scrollHeight;
 
@@ -824,10 +926,9 @@
 
         const data = await response.json();
         
-        // Dölj typing indicator och visa svar
         setTimeout(() => {
           typingIndicator.classList.remove('active');
-          addMessage(data.answer, 'ai');
+          addMessage(data.answer, 'ai', data.audio_url);
         }, 1000);
 
       } catch (error) {
@@ -838,7 +939,7 @@
       }
     }
 
-    function addMessage(text, type) {
+    function addMessage(text, type, audioUrl = null) {
       const wrapper = document.createElement('div');
       wrapper.className = `message-wrapper ${type}`;
       
@@ -857,17 +958,42 @@
       
       wrapper.appendChild(avatar);
       wrapper.appendChild(messageDiv);
+      
       chatContainer.appendChild(wrapper);
       chatContainer.scrollTop = chatContainer.scrollHeight;
       
       if (type === 'ai') {
-        typeMessage(messageDiv, text);
+        typeMessage(messageDiv, text, () => {
+          // Lägg till ljudknapp EFTER att texten är färdigskriven
+          if (audioUrl) {
+            const audioButton = document.createElement('button');
+            audioButton.className = 'audio-button';
+            audioButton.textContent = '🔊';
+            audioButton.title = 'Spela upp ljud';
+            
+            audioButton.addEventListener('click', () => {
+              const audio = new Audio('http://127.0.0.1:5000' + audioUrl);
+              audioButton.classList.add('playing');
+              
+              audio.play().catch(err => {
+                console.log('Kunde inte spela ljud:', err);
+                audioButton.classList.remove('playing');
+              });
+              
+              audio.onended = () => {
+                audioButton.classList.remove('playing');
+              };
+            });
+            
+            wrapper.appendChild(audioButton);
+          }
+        });
       } else {
         messageDiv.textContent = text;
       }
     }
     
-    function typeMessage(element, text) {
+    function typeMessage(element, text, callback) {
       let index = 0;
       element.textContent = '';
       
@@ -878,6 +1004,7 @@
           chatContainer.scrollTop = chatContainer.scrollHeight;
         } else {
           clearInterval(typingInterval);
+          if (callback) callback();
         }
       }, 50);
     }
@@ -889,5 +1016,5 @@
       }
     });
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'99c733ee86fd5cc8',t:'MTc2Mjc5NTA0MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'99d216b2160a2d63',t:'MTc2MjkwOTE4Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
