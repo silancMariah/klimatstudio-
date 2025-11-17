@@ -1,0 +1,54 @@
+.navigation-hint {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  z-index: 200;
+  color: white;
+  font-family: 'Tektur-Regular', sans-serif;
+  opacity: 0.9;
+  animation: fadeIn 1.2s ease-in;
+}
+
+.arrow-container {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-bottom: 10px;
+}
+
+.arrow {
+  width: 40px;
+  height: 40px;
+  filter: drop-shadow(0 0 8px rgba(0, 150, 255, 0.7));
+  transition: transform 0.2s ease, opacity 0.2s ease;
+  opacity: 0.8;
+}
+
+.arrow:hover {
+  transform: scale(1.15);
+  opacity: 1;
+}
+
+.hint-title {
+  font-size: 18px;
+  opacity: 0.85;
+}
+
+.touch-hand {
+  width: 60px;
+  opacity: 0.9;
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.7));
+  animation: swipe 2s infinite ease-in-out;
+}
+
+@keyframes swipe {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(20px); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

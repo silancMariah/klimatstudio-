@@ -648,7 +648,7 @@
  <body><!-- Intro Page -->
   <div id="intro-page"><!-- Nebula bakgrund -->
    <div class="nebula" id="nebula-container"></div><!-- Stjärnor -->
-   <div class="stars" id="stars-container"></div><img src="helloworld.png" alt="Hello World Logo" class="logo">
+   <div class="stars" id="stars-container"></div><img src="public/helloworld.png" alt="Hello World Logo" class="logo">
    <div class="earth-container">
     <div class="earth-glow"></div>
     <div class="earth" id="earth-element"></div>
@@ -665,7 +665,7 @@
   </div><!-- Chat Page -->
   <div id="chat-page">
    <div class="chat-header">
-    <div class="chat-character" style="background-image: url('/Users/silancetinkaya/klimatstudio-/Pass3/ai_blinking.gif'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
+    <div class="chat-character" style="background-image: url('public/ai_blinking.gif'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
     <div class="chat-title">
      Min AI Assistent
     </div>
@@ -872,16 +872,16 @@
     // ============================================
     const earthElement = document.getElementById('earth-element');
     earthElement.classList.add('custom-image');
-    earthElement.style.backgroundImage = "url('earth_rotating.gif')";
+    earthElement.style.backgroundImage = "url('public/earth_rotating.gif')";
     
     const characterElement = document.getElementById('character-element');
     characterElement.classList.add('custom-image');
-    characterElement.style.backgroundImage = "url('r-unscreen.gif')";
+    characterElement.style.backgroundImage = "url('public/r-unscreen.gif')";
     characterElement.textContent = '';
     
     const aiAvatars = document.querySelectorAll('.avatar.ai');
     aiAvatars.forEach(avatar => {
-      avatar.style.backgroundImage = "url('r-unscreen.gif')";
+      avatar.style.backgroundImage = "url('public/r-unscreen.gif')";
       avatar.textContent = '';
     });
 
@@ -947,7 +947,7 @@
       avatar.className = `avatar ${type}`;
       
       if (type === 'ai') {
-        avatar.style.backgroundImage = "url('r-unscreen.gif')";
+        avatar.style.backgroundImage = "url('public/r-unscreen.gif')";
         avatar.textContent = '';
       } else {
         avatar.textContent = '👤';

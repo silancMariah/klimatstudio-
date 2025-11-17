@@ -1,0 +1,57 @@
+.solar-wrapper {
+  width: 100%;
+  background: radial-gradient(circle at center,
+    #0b0f1d 10%,
+    #05070d 40%,
+    #020308 80%
+  );
+  padding: 4rem 0;
+  position: relative;
+  overflow: hidden;
+
+  background-image: url("/assets/img/space-bg.png"); /* valfri nebulosa */
+  background-size: cover;
+  background-position: center;
+}
+
+.solar-content {
+  display: flex;
+  align-items: center;
+  justify-content: left;
+  gap: 3rem;
+  padding-left: 5rem;
+  position: relative;
+  height: 380px;
+}
+
+/* PLANET-STORLEKAR baserat på bilden */
+.planet {
+  object-fit: contain;
+  filter: drop-shadow(0 0 12px rgba(255,255,255,0.1));
+  opacity: 0.95;
+}
+
+.sun {
+  width: 260px;
+  margin-left: -40px;
+  filter: drop-shadow(0 0 40px rgba(255, 255, 150, 0.4));
+}
+
+.mercury { width: 40px; }
+.venus   { width: 60px; }
+.earth   { width: 65px; }
+.mars    { width: 55px; }
+.jupiter { width: 150px; }
+.saturn  { width: 160px; }
+.uranus  { width: 95px; }
+.neptune { width: 110px; }
+
+/* HELLO WORLD-logga */
+.hw-logo {
+  position: absolute;
+  right: 4rem;
+  bottom: 2rem;
+  width: 200px;
+  opacity: 0.95;
+  filter: drop-shadow(0 0 12px rgba(255,255,255,0.35));
+}

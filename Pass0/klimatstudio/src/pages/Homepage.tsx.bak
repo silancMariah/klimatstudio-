@@ -1,0 +1,58 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import "../index.css";
+// removed next/link import
+
+// Komponenter
+import RotatingEarth from "../components/RotatingEarth";
+import AnimatedTitle from "../components/AnimatedTitle";
+import FlyingSatalite from "../components/FlyingSatallite";
+import Passmeny from "../components/Passmeny";
+
+export default function Home() {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    setIsVisible(true);
+  }, []);
+
+  return (
+    <div className="homepage-container">
+
+      {/* --- LÄNKAR TILL TVÅ SIDOR --- */}
+      <div className="flex flex-col items-center gap-2 mt-4">
+        <Link href="/templates/Portfolio.html" target="_blank" className="text-purple-400 underline hover:text-pink-400 transition-all">
+          Gå till Portfolio
+        </Link>
+
+        <Link href="/page" className="text-green-400 underline hover:text-yellow-300 transition-all">
+          Gå till Utvärdering
+        </Link>
+      </div>
+
+      {/* --- TITEL --- */}
+      <h1
+        className={`text-5xl font-bold mb-4 text-blue-600 transition-all duration-[1200ms] ease-out
+        ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
+      >
+        Klimatstudio
+      </h1>
+
+      {/* --- MENYN --- */}
+      <div className="flex justify-center items-center gap-12 relative min-h-screen">
+        <Passmeny />
+      </div>
+
+      {/* --- ANIMERAD TEXT --- */}
+      <AnimatedTitle />
+
+      {/* --- JORD + SATELLIT --- */}
+      <div className="planet">
+        <RotatingEarth />
+        <FlyingSatalite />
+      </div>
+
+    </div>
+  );
+}

@@ -1,0 +1,25 @@
+.container {
+  background: #f9fafb;
+  padding: 16px;
+  border-radius: 12px;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.text {
+  margin-bottom: 12px;
+  color: #444;
+}
+
+.exitBtn {
+  background: #555;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
