@@ -6,25 +6,26 @@ import turtle
 screen = turtle.Screen()
 screen.setup(width=800, height=600)
 screen.title("Min Jord")
+screen.bgcolor("black")
 
 earth = turtle.Turtle() 
-earth.shape("circle") #Enkel cirkel
-earth.turtlesize(10) #jordens storlek
+earth.shape("circle") 
+earth.turtlesize(10) 
 earth.color("blue")
 
-# ------ Rita solen här: ----- #
+# ------ Rita solen här: 
 sun = turtle.Turtle()
 
 
-# ---------------------------- #
+# ----------------------
 
 
-
-# ------ Skriv en text här: ----- #
+# ------ Skriv en text här:
 text = turtle.Turtle()
 
+# ------------------------- 
 
-# ------------------------------- #text.penup()
+# ---------- Jordens funnktioner:
 
 def update_color(temp):
      if temp > 20:
@@ -36,15 +37,12 @@ def update_color(temp):
      else:
         earth.color("green")
         # ----- text -----#
+# ------------------------------- 
+
         
 update_color(21)
 
 
-def spin():
-    earth.right(90)
-    spin()
-    
-spin()
 
 
 turtle.done()

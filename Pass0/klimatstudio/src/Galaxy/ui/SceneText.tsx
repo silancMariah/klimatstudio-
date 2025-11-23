@@ -142,6 +142,38 @@ function SceneTextComponent() {
     >
       3D-satellitläge
     </button>
+    <button
+      style={{
+        padding: '10px 24px',
+        fontSize: '18px',
+        borderRadius: '12px',
+        border: 'none',
+        backgroundColor: '#a855f7',
+        color: '#fdf4ff',
+        cursor: 'pointer',
+        pointerEvents: 'auto',
+        boxShadow: '0 6px 16px rgba(168,85,247,0.35)',
+      }}
+      onClick={() => navigate('/rocket-world')}
+    >
+      Raketvärld
+    </button>
+    <button
+      style={{
+        padding: '10px 24px',
+        fontSize: '18px',
+        borderRadius: '12px',
+        border: 'none',
+        backgroundColor: '#10b981',
+        color: '#04130c',
+        cursor: 'pointer',
+        pointerEvents: 'auto',
+        boxShadow: '0 6px 16px rgba(16,185,129,0.35)',
+      }}
+      onClick={() => navigate('/turtle-lab')}
+    >
+      Turtle-labb
+    </button>
   </div>
 )}
 {currentScene === 'station' && (
